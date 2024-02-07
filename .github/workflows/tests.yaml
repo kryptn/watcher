@@ -20,6 +20,7 @@ jobs:
         with:
           command: check
           args: --manifest-path ${{ matrix.fn }}/Cargo.toml
+          
   test:
     name: Test Suite
     strategy:
@@ -40,6 +41,7 @@ jobs:
         with:
           command: test
           args: --manifest-path ${{ matrix.fn }}/Cargo.toml
+
   fmt:
     name: Rustfmt
     strategy:
@@ -60,13 +62,14 @@ jobs:
         with:
           command: fmt
           args: --manifest-path ${{ matrix.fn }}/Cargo.toml --all -- --check
+
   clippy:
     name: Clippy
     strategy:
       matrix:
         fn:
           - functions/add-endpoint
-          - watcherg
+          - watcher
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2

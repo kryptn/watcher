@@ -1,6 +1,7 @@
 
 
-
+fmt-all:
+    rg --files -g 'Cargo.toml' | xargs -n1 cargo fmt --manifest-path
 
 build-function fn:
     cargo lambda build --manifest-path functions/{{fn}}/Cargo.toml --arm64 --output-format zip --release
