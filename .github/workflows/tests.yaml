@@ -1,0 +1,82 @@
+on: [push, pull_request]
+name: Continuous integration
+jobs:
+  check:
+    name: Check
+    strategy:
+      matrix:
+        fn:
+          - functions/add-endpoint
+          - watcher
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          override: true
+      - uses: actions-rs/cargo@v1
+        with:
+          command: check
+          args: --manifest-path ${{ matrix.fn }}/Cargo.toml
+  test:
+    name: Test Suite
+    strategy:
+      matrix:
+        fn:
+          - functions/add-endpoint
+          - watcher
+
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          override: true
+      - uses: actions-rs/cargo@v1
+        with:
+          command: test
+          args: --manifest-path ${{ matrix.fn }}/Cargo.toml
+  fmt:
+    name: Rustfmt
+    strategy:
+      matrix:
+        fn:
+          - functions/add-endpoint
+          - watcher
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          override: true
+      - run: rustup component add rustfmt
+      - uses: actions-rs/cargo@v1
+        with:
+          command: fmt
+          args: --manifest-path ${{ matrix.fn }}/Cargo.toml --all -- --check
+  clippy:
+    name: Clippy
+    strategy:
+      matrix:
+        fn:
+          - functions/add-endpoint
+          - watcherg
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          override: true
+      - run: rustup component add clippy
+      - uses: actions-rs/cargo@v1
+        with:
+          command: clippy
+          args: --manifest-path ${{ matrix.fn }}/Cargo.toml -- -D warnings
