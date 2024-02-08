@@ -23,6 +23,8 @@ Broadcast:id   | Sink:id               || created_at | result
 
 
 
+## Nodes
+
 endpoint:
 - created_at
 - endpoint_type
@@ -59,6 +61,13 @@ broadcast:
 - created_at
 - contents
 - ttl
+
+## Edges
+
+- has_observation
+- subscriber
+- sent
+- sent_to
 
 
 add endpoint:
