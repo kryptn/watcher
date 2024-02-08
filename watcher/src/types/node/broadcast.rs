@@ -1,7 +1,10 @@
 use serde::{Deserialize, Serialize};
 
+#[cfg(any(test, feature = "fake"))]
+use fake::{faker::name::raw::*, locales::*, Dummy, Fake, Faker};
+
 #[derive(Serialize, Deserialize)]
-#[cfg_attr(test, derive(Debug, PartialEq))]
+#[cfg_attr(any(test, feature = "fake"), derive(Debug, PartialEq, Dummy))]
 pub struct Broadcast {
     #[serde(rename = "PK")]
     pub id: String,
@@ -13,6 +16,18 @@ pub struct Broadcast {
 
     #[serde(skip_serializing_if = "Option::is_none")]
     ttl: Option<u64>,
+}
+
+impl Broadcast {
+    #[cfg(test)]
+    pub fn mock() -> Self {
+        let id = format!("Broadcast:{}", 20.fake::<String>());
+
+        let mut fake: Broadcast = Faker.fake();
+        fake.id = id.clone();
+        fake.sk = id;
+        fake
+    }
 }
 
 #[cfg(test)]

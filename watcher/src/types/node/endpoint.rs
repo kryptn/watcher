@@ -1,7 +1,10 @@
 use serde::{Deserialize, Serialize};
 
-#[derive(Serialize, Deserialize)]
-#[cfg_attr(test, derive(Debug, PartialEq))]
+#[cfg(any(test, feature = "fake"))]
+use fake::{faker::name::raw::*, locales::*, Dummy, Fake, Faker};
+
+#[derive(Serialize, Deserialize, Clone)]
+#[cfg_attr(any(test, feature = "fake"), derive(Debug, PartialEq, Dummy))]
 pub struct Endpoint {
     #[serde(rename = "PK")]
     pub id: String,
@@ -20,26 +23,55 @@ pub struct Endpoint {
     pub schedule_name: Option<String>,
 }
 
-#[derive(Serialize, Deserialize)]
-#[cfg_attr(test, derive(Debug, PartialEq))]
+impl Endpoint {
+    pub fn new(
+        id: String,
+        name: String,
+        endpoint: EndpointType,
+        rate: Option<String>,
+        schedule_name: Option<String>,
+    ) -> Self {
+        Self {
+            id: id.clone(),
+            sk: id,
+            name,
+            endpoint,
+            rate,
+            schedule_name,
+        }
+    }
+
+    #[cfg(any(test, feature = "fake"))]
+    pub fn mock() -> Self {
+        let id = format!("Endpoint:{}", 20.fake::<String>());
+
+        let mut fake: Endpoint = Faker.fake();
+        fake.id = id.clone();
+        fake.sk = id;
+        fake
+    }
+}
+
+#[derive(Serialize, Deserialize, Clone)]
+#[cfg_attr(any(test, feature = "fake"), derive(Debug, PartialEq, Dummy))]
 #[serde(rename_all = "snake_case")]
 pub struct Rss {
     pub url: String,
 }
 
-#[derive(Serialize, Deserialize)]
-#[cfg_attr(test, derive(Debug, PartialEq))]
+#[derive(Serialize, Deserialize, Clone)]
+#[cfg_attr(any(test, feature = "fake"), derive(Debug, PartialEq, Dummy))]
 #[serde(rename_all = "snake_case")]
 pub struct Http {
     pub url: String,
     pub method: String,
-    pub headers: Vec<String>,
+    pub headers: Vec<(String, String)>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub timeout: Option<String>,
 }
 
-#[derive(Serialize, Deserialize)]
-#[cfg_attr(test, derive(Debug, PartialEq))]
+#[derive(Serialize, Deserialize, Clone)]
+#[cfg_attr(any(test, feature = "fake"), derive(Debug, PartialEq, Dummy))]
 #[serde(
     rename_all = "snake_case",
     tag = "endpoint_type",
@@ -111,5 +143,12 @@ mod test {
 
         let deserialized = serde_json::from_value::<Endpoint>(json).unwrap();
         assert_eq!(deserialized, expected);
+    }
+
+    #[test]
+    fn test_endpoint_fake() {
+        let endpoint = Endpoint::mock();
+        println!("{:#?}", endpoint);
+        assert_eq!(endpoint.id, endpoint.sk);
     }
 }

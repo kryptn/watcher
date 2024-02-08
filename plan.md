@@ -1,8 +1,10 @@
 
 
-Endpoint:id    | Endpoint:id               || created_at | endpoint_type | rate
-Sink:id        | Sink:id               || created_at | sink_type | sink_data
-Broadcast:id   | Broadcast:id               || created_at | contents
+Endpoint:id    | Endpoint:id  || created_at | endpoint_type | rate
+Sink:id        | Sink:id      || created_at | sink_type | sink_data
+Broadcast:id   | Broadcast:id || created_at | contents
+
+
 
 (:Endpoint)-MEASURED->(:Observation)
 Endpoint:id    | Observation:Timestamp || contents

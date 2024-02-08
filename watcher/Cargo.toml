@@ -12,7 +12,11 @@ serde_json = "1.0"
 serde_dynamo = { version = "4", features = ["aws-sdk-dynamodb+1"] }
 
 aws-sdk-dynamodb = "1.13.1"
+fake = { version = "2.9.2", features = ["derive", "chrono", "http"], optional=true}
 
+[features]
+default = []
+fake = ["dep:fake"]
 
-# [features]
-# default = ["serde_dynamo"]
+[dev-dependencies]
+fake = { version = "2.9.2", features = ["derive", "chrono", "http"] }

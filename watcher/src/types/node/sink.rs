@@ -1,7 +1,10 @@
 use serde::{Deserialize, Serialize};
 
+#[cfg(any(test, feature = "fake"))]
+use fake::{faker::name::raw::*, locales::*, Dummy, Fake, Faker};
+
 #[derive(Serialize, Deserialize)]
-#[cfg_attr(test, derive(Debug, PartialEq))]
+#[cfg_attr(any(test, feature = "fake"), derive(Debug, PartialEq, Dummy))]
 pub struct Sink {
     #[serde(rename = "PK")]
     pub id: String,
@@ -17,15 +20,27 @@ pub struct Sink {
     last_status_code: Option<u8>,
 }
 
+impl Sink {
+    #[cfg(any(test, feature = "fake"))]
+    pub fn mock() -> Self {
+        let id = format!("Sink:{}", 20.fake::<String>());
+
+        let mut fake: Self = Faker.fake();
+        fake.id = id.clone();
+        fake.sk = id;
+        fake
+    }
+}
+
 #[derive(Serialize, Deserialize)]
-#[cfg_attr(test, derive(Debug, PartialEq))]
+#[cfg_attr(any(test, feature = "fake"), derive(Debug, PartialEq, Dummy))]
 #[serde(rename_all = "snake_case")]
 pub struct Discord {
     pub url: String,
 }
 
 #[derive(Serialize, Deserialize)]
-#[cfg_attr(test, derive(Debug, PartialEq))]
+#[cfg_attr(any(test, feature = "fake"), derive(Debug, PartialEq, Dummy))]
 #[serde(rename_all = "snake_case", tag = "sink_type", content = "sink_data")]
 pub enum SinkType {
     Discord(Discord),

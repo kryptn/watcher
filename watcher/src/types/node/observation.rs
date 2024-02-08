@@ -1,7 +1,10 @@
 use serde::{Deserialize, Serialize};
 
+#[cfg(any(test, feature = "fake"))]
+use fake::{faker::name::raw::*, locales::*, Dummy, Fake, Faker};
+
 #[derive(Serialize, Deserialize)]
-#[cfg_attr(test, derive(Debug, PartialEq))]
+#[cfg_attr(any(test, feature = "fake"), derive(Debug, PartialEq, Dummy))]
 pub struct Observation {
     #[serde(rename = "PK")]
     pub id: String,
@@ -14,6 +17,18 @@ pub struct Observation {
     status_code: u8,
     #[serde(skip_serializing_if = "Option::is_none")]
     ttl: Option<u64>,
+}
+
+impl Observation {
+    #[cfg(any(test, feature = "fake"))]
+    pub fn mock() -> Self {
+        let id = format!("Observation:{}", 20.fake::<String>());
+
+        let mut fake: Observation = Faker.fake();
+        fake.id = id.clone();
+        fake.sk = id;
+        fake
+    }
 }
 
 #[cfg(test)]
