@@ -1,10 +1,12 @@
 on:
   push:
-    # paths:
-    #   - functions/add-endpoint/**
+    paths:
+      - functions/add-endpoint/**
+      - watcher/**
   pull_request:
-    # paths:
-    #   - functions/add-endpoint/**
+    paths:
+      - functions/add-endpoint/**
+      - watcher/**
 
 name: add-endpoint -- ci
 concurrency:

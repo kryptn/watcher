@@ -1,10 +1,10 @@
 on:
   push:
-    # paths:
-    #   - watcher/**
+    paths:
+      - watcher/**
   pull_request:
-    # paths:
-    #   - watcher/**
+    paths:
+      - watcher/**
 
 name: watcher -- ci
 concurrency:
