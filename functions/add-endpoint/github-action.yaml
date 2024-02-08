@@ -1,0 +1,72 @@
+on:
+  push:
+    # paths:
+    #   - functions/add-endpoint/**
+  pull_request:
+    # paths:
+    #   - functions/add-endpoint/**
+
+name: add-endpoint -- ci
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    name: Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+        with:
+          prefix-key: "v0-rust"
+          workspaces: "functions/add-endpoint -> target"
+          cache-all-crates: "true"
+          save-if: ${{ github.ref == 'refs/heads/main' }}
+      - run: cargo check --manifest-path functions/add-endpoint/Cargo.toml
+
+  test:
+    name: Test Suite
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+        with:
+          prefix-key: "v0-rust"
+          workspaces: "functions/add-endpoint -> target"
+          cache-all-crates: "true"
+          save-if: ${{ github.ref == 'refs/heads/main' }}
+      - run: cargo test --manifest-path functions/add-endpoint/Cargo.toml
+
+  fmt:
+    name: Rustfmt
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - run: rustup component add rustfmt
+      - uses: Swatinem/rust-cache@v2
+        with:
+          prefix-key: "v0-rust"
+          workspaces: "functions/add-endpoint -> target"
+          cache-all-crates: "true"
+          save-if: ${{ github.ref == 'refs/heads/main' }}
+      - run: cargo test --manifest-path functions/add-endpoint/Cargo.toml
+
+  clippy:
+    name: Clippy
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - run: rustup component add clippy
+      - uses: Swatinem/rust-cache@v2
+        with:
+          prefix-key: "v0-rust"
+          workspaces: "functions/add-endpoint -> target"
+          cache-all-crates: "true"
+          save-if: ${{ github.ref == 'refs/heads/main' }}
+      - run: cargo clippy --manifest-path functions/add-endpoint/Cargo.toml -- -D warnings
+        continue-on-error: true

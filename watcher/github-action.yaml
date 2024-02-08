@@ -1,5 +1,12 @@
-on: [push, pull_request]
-name: Continuous integration
+on:
+  push:
+    # paths:
+    #   - watcher/**
+  pull_request:
+    # paths:
+    #   - watcher/**
+
+name: watcher -- ci
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -7,12 +14,6 @@ concurrency:
 jobs:
   check:
     name: Check
-    strategy:
-      matrix:
-        fn:
-          - functions/add-endpoint
-          - watcher
-          - cli
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -20,21 +21,13 @@ jobs:
       - uses: Swatinem/rust-cache@v2
         with:
           prefix-key: "v0-rust"
-          # shared-key: "ci-{{ matrix.fn }}"
-          workspaces: "{{ matrix.fn }} -> target"
+          workspaces: "watcher -> target"
           cache-all-crates: "true"
           save-if: ${{ github.ref == 'refs/heads/main' }}
-      - run: cargo check --manifest-path ${{ matrix.fn }}/Cargo.toml
+      - run: cargo check --manifest-path watcher/Cargo.toml
 
   test:
     name: Test Suite
-    strategy:
-      matrix:
-        fn:
-          - functions/add-endpoint
-          - watcher
-          - cli
-
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -42,20 +35,13 @@ jobs:
       - uses: Swatinem/rust-cache@v2
         with:
           prefix-key: "v0-rust"
-          # shared-key: "ci-{{ matrix.fn }}"
-          # workspaces: "{{ matrix.fn }} -> target"
+          workspaces: "watcher -> target"
           cache-all-crates: "true"
           save-if: ${{ github.ref == 'refs/heads/main' }}
-      - run: cargo test --manifest-path ${{ matrix.fn }}/Cargo.toml
+      - run: cargo test --manifest-path watcher/Cargo.toml
 
   fmt:
     name: Rustfmt
-    strategy:
-      matrix:
-        fn:
-          - functions/add-endpoint
-          - watcher
-          - cli
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -64,20 +50,13 @@ jobs:
       - uses: Swatinem/rust-cache@v2
         with:
           prefix-key: "v0-rust"
-          # shared-key: "ci-{{ matrix.fn }}"
-          # workspaces: "{{ matrix.fn }} -> target"
+          workspaces: "watcher -> target"
           cache-all-crates: "true"
           save-if: ${{ github.ref == 'refs/heads/main' }}
-      - run: cargo test --manifest-path ${{ matrix.fn }}/Cargo.toml
+      - run: cargo test --manifest-path watcher/Cargo.toml
 
   clippy:
     name: Clippy
-    strategy:
-      matrix:
-        fn:
-          - functions/add-endpoint
-          - watcher
-          - cli
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -86,9 +65,8 @@ jobs:
       - uses: Swatinem/rust-cache@v2
         with:
           prefix-key: "v0-rust"
-          # shared-key: "ci-{{ matrix.fn }}"
-          # workspaces: "{{ matrix.fn }} -> target"
+          workspaces: "watcher -> target"
           cache-all-crates: "true"
           save-if: ${{ github.ref == 'refs/heads/main' }}
-      - run: cargo clippy --manifest-path ${{ matrix.fn }}/Cargo.toml -- -D warnings
+      - run: cargo clippy --manifest-path watcher/Cargo.toml -- -D warnings
         continue-on-error: true
