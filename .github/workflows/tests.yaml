@@ -20,7 +20,7 @@ jobs:
       - uses: Swatinem/rust-cache@v2
         with:
           prefix-key: "v0-rust"
-          shared-key: "ci"
+          shared-key: "ci-{{ matrix.fn }}"
           cache-all-crates: "true"
           save-if: ${{ github.ref == 'refs/heads/main' }}
       - run: cargo check --manifest-path ${{ matrix.fn }}/Cargo.toml
@@ -41,7 +41,7 @@ jobs:
       - uses: Swatinem/rust-cache@v2
         with:
           prefix-key: "v0-rust"
-          shared-key: "ci"
+          shared-key: "ci-{{ matrix.fn }}"
           cache-all-crates: "true"
           save-if: ${{ github.ref == 'refs/heads/main' }}
       - run: cargo test --manifest-path ${{ matrix.fn }}/Cargo.toml
@@ -62,7 +62,7 @@ jobs:
       - uses: Swatinem/rust-cache@v2
         with:
           prefix-key: "v0-rust"
-          shared-key: "ci"
+          shared-key: "ci-{{ matrix.fn }}"
           cache-all-crates: "true"
           save-if: ${{ github.ref == 'refs/heads/main' }}
       - run: cargo test --manifest-path ${{ matrix.fn }}/Cargo.toml
@@ -83,7 +83,7 @@ jobs:
       - uses: Swatinem/rust-cache@v2
         with:
           prefix-key: "v0-rust"
-          shared-key: "ci"
+          shared-key: "ci-{{ matrix.fn }}"
           cache-all-crates: "true"
           save-if: ${{ github.ref == 'refs/heads/main' }}
       - run: cargo clippy --manifest-path ${{ matrix.fn }}/Cargo.toml -- -D warnings
