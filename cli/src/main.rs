@@ -10,7 +10,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("fake endpoint: \n\t{}", serialized);
 
     let dynamodb_serialized: Item = to_item(endpoint.clone())?;
-    println!("dynamodb endpoint: \n\t{:#?}", dynamodb_serialized);
+    println!("dynamodb item: \n\t{:#?}", dynamodb_serialized);
 
     Ok(())
 }
