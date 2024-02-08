@@ -20,7 +20,7 @@ jobs:
       - uses: Swatinem/rust-cache@v2
         with:
           prefix-key: "v0-rust"
-          shared-key: "ci-{{ matrix.fn }}"
+          # shared-key: "ci-{{ matrix.fn }}"
           workspaces: "{{ matrix.fn }} -> target"
           cache-all-crates: "true"
           save-if: ${{ github.ref == 'refs/heads/main' }}
@@ -42,8 +42,8 @@ jobs:
       - uses: Swatinem/rust-cache@v2
         with:
           prefix-key: "v0-rust"
-          shared-key: "ci-{{ matrix.fn }}"
-          workspaces: "{{ matrix.fn }} -> target"
+          # shared-key: "ci-{{ matrix.fn }}"
+          # workspaces: "{{ matrix.fn }} -> target"
           cache-all-crates: "true"
           save-if: ${{ github.ref == 'refs/heads/main' }}
       - run: cargo test --manifest-path ${{ matrix.fn }}/Cargo.toml
@@ -64,8 +64,8 @@ jobs:
       - uses: Swatinem/rust-cache@v2
         with:
           prefix-key: "v0-rust"
-          shared-key: "ci-{{ matrix.fn }}"
-          workspaces: "{{ matrix.fn }} -> target"
+          # shared-key: "ci-{{ matrix.fn }}"
+          # workspaces: "{{ matrix.fn }} -> target"
           cache-all-crates: "true"
           save-if: ${{ github.ref == 'refs/heads/main' }}
       - run: cargo test --manifest-path ${{ matrix.fn }}/Cargo.toml
@@ -86,8 +86,8 @@ jobs:
       - uses: Swatinem/rust-cache@v2
         with:
           prefix-key: "v0-rust"
-          shared-key: "ci-{{ matrix.fn }}"
-          workspaces: "{{ matrix.fn }} -> target"
+          # shared-key: "ci-{{ matrix.fn }}"
+          # workspaces: "{{ matrix.fn }} -> target"
           cache-all-crates: "true"
           save-if: ${{ github.ref == 'refs/heads/main' }}
       - run: cargo clippy --manifest-path ${{ matrix.fn }}/Cargo.toml -- -D warnings
