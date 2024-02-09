@@ -3,13 +3,15 @@ use serde::{Deserialize, Serialize};
 #[cfg(any(test, feature = "fake"))]
 use fake::{faker::name::raw::*, locales::*, Dummy, Fake, Faker};
 
-#[derive(Serialize, Deserialize)]
+use crate::types::WatcherItem;
+
+#[derive(Serialize, Deserialize, Clone)]
 #[cfg_attr(any(test, feature = "fake"), derive(Debug, PartialEq, Dummy))]
 pub struct Observation {
     #[serde(rename = "PK")]
     pub id: String,
     #[serde(rename = "SK")]
-    pub sk: String,
+    pub _sk: String,
     created_at: String,
     #[serde(skip_serializing_if = "Option::is_none")]
     s3_key: Option<String>,
@@ -20,13 +22,18 @@ pub struct Observation {
 }
 
 impl Observation {
+    pub fn to_watcher_item(self) -> WatcherItem {
+        let node = self.into();
+        WatcherItem::Node(node)
+    }
+
     #[cfg(any(test, feature = "fake"))]
     pub fn mock() -> Self {
         let id = format!("Observation:{}", 20.fake::<String>());
 
         let mut fake: Observation = Faker.fake();
         fake.id = id.clone();
-        fake.sk = id;
+        fake._sk = id;
         fake
     }
 }
@@ -40,7 +47,7 @@ mod test {
     fn test_observation_serialization() {
         let observation = Observation {
             id: "id".to_string(),
-            sk: "sk".to_string(),
+            _sk: "sk".to_string(),
             created_at: "created_at".to_string(),
             s3_key: Some("s3_key".to_string()),
             headers: vec![("key".to_string(), "value".to_string())],
@@ -80,7 +87,7 @@ mod test {
 
         let expected = Observation {
             id: "id".to_string(),
-            sk: "sk".to_string(),
+            _sk: "sk".to_string(),
             created_at: "created_at".to_string(),
             s3_key: Some("s3_key".to_string()),
             headers: vec![("key".to_string(), "value".to_string())],

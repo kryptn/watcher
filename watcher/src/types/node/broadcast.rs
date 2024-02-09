@@ -3,7 +3,11 @@ use serde::{Deserialize, Serialize};
 #[cfg(any(test, feature = "fake"))]
 use fake::{faker::name::raw::*, locales::*, Dummy, Fake, Faker};
 
-#[derive(Serialize, Deserialize)]
+use crate::types::WatcherItem;
+
+use super::Node;
+
+#[derive(Serialize, Deserialize, Clone)]
 #[cfg_attr(any(test, feature = "fake"), derive(Debug, PartialEq, Dummy))]
 pub struct Broadcast {
     #[serde(rename = "PK")]
@@ -27,6 +31,11 @@ impl Broadcast {
         fake.id = id.clone();
         fake.sk = id;
         fake
+    }
+
+    pub fn to_watcher_item(self) -> WatcherItem {
+        let node = self.into();
+        WatcherItem::Node(node)
     }
 }
 

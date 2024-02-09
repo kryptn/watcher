@@ -3,9 +3,9 @@ use serde::{Deserialize, Serialize};
 #[cfg(any(test, feature = "fake"))]
 use fake::{faker::name::raw::*, locales::*, Dummy, Fake, Faker};
 
-use crate::types::{Broadcast, Endpoint};
+use crate::types::{Broadcast, Endpoint, WatcherItem};
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone)]
 #[cfg_attr(any(test, feature = "fake"), derive(Debug, PartialEq, Dummy))]
 pub struct Emission {
     #[serde(rename = "PK")]
@@ -20,6 +20,13 @@ impl From<(&Endpoint, &Broadcast)> for Emission {
             endpoint_id: endpoint.id.clone(),
             broadcast_id: broadcast.id.clone(),
         }
+    }
+}
+
+impl Emission {
+    pub fn to_watcher_item(self) -> WatcherItem {
+        let edge = self.into();
+        WatcherItem::Edge(edge)
     }
 }
 

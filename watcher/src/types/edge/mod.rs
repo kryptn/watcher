@@ -13,7 +13,7 @@ pub use emission::*;
 pub mod sent;
 pub use sent::*;
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone)]
 #[cfg_attr(test, derive(Debug, PartialEq))]
 #[serde(rename_all = "snake_case", tag = "node_type")]
 pub enum Edge {
@@ -21,4 +21,28 @@ pub enum Edge {
     Subscription(Subscription),
     Emission(Emission),
     Sent(Sent),
+}
+
+impl From<Measurement> for Edge {
+    fn from(measurement: Measurement) -> Self {
+        Edge::Measurement(measurement)
+    }
+}
+
+impl From<Subscription> for Edge {
+    fn from(subscription: Subscription) -> Self {
+        Edge::Subscription(subscription)
+    }
+}
+
+impl From<Emission> for Edge {
+    fn from(emission: Emission) -> Self {
+        Edge::Emission(emission)
+    }
+}
+
+impl From<Sent> for Edge {
+    fn from(sent: Sent) -> Self {
+        Edge::Sent(sent)
+    }
 }

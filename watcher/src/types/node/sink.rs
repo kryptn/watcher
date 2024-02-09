@@ -3,13 +3,15 @@ use serde::{Deserialize, Serialize};
 #[cfg(any(test, feature = "fake"))]
 use fake::{faker::name::raw::*, locales::*, Dummy, Fake, Faker};
 
-#[derive(Serialize, Deserialize)]
+use crate::types::WatcherItem;
+
+#[derive(Serialize, Deserialize, Clone)]
 #[cfg_attr(any(test, feature = "fake"), derive(Debug, PartialEq, Dummy))]
 pub struct Sink {
     #[serde(rename = "PK")]
     pub id: String,
     #[serde(rename = "SK")]
-    pub sk: String,
+    pub _sk: String,
 
     created_at: String,
 
@@ -21,25 +23,30 @@ pub struct Sink {
 }
 
 impl Sink {
+    pub fn to_watcher_item(self) -> WatcherItem {
+        let node = self.into();
+        WatcherItem::Node(node)
+    }
+
     #[cfg(any(test, feature = "fake"))]
     pub fn mock() -> Self {
         let id = format!("Sink:{}", 20.fake::<String>());
 
         let mut fake: Self = Faker.fake();
         fake.id = id.clone();
-        fake.sk = id;
+        fake._sk = id;
         fake
     }
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone)]
 #[cfg_attr(any(test, feature = "fake"), derive(Debug, PartialEq, Dummy))]
 #[serde(rename_all = "snake_case")]
 pub struct Discord {
     pub url: String,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone)]
 #[cfg_attr(any(test, feature = "fake"), derive(Debug, PartialEq, Dummy))]
 #[serde(rename_all = "snake_case", tag = "sink_type", content = "sink_data")]
 pub enum SinkType {
@@ -55,7 +62,7 @@ mod test {
     fn test_sink_serialization() {
         let sink = Sink {
             id: "id".to_string(),
-            sk: "sk".to_string(),
+            _sk: "sk".to_string(),
             created_at: "created_at".to_string(),
             sink: SinkType::Discord(Discord {
                 url: "url".to_string(),
@@ -93,7 +100,7 @@ mod test {
 
         let expected = Sink {
             id: "id".to_string(),
-            sk: "sk".to_string(),
+            _sk: "sk".to_string(),
             created_at: "created_at".to_string(),
             sink: SinkType::Discord(Discord {
                 url: "url".to_string(),

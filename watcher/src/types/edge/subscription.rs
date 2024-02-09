@@ -3,7 +3,9 @@ use serde::{Deserialize, Serialize};
 #[cfg(any(test, feature = "fake"))]
 use fake::{faker::name::raw::*, locales::*, Dummy, Fake, Faker};
 
-#[derive(Serialize, Deserialize)]
+use crate::types::WatcherItem;
+
+#[derive(Serialize, Deserialize, Clone)]
 #[cfg_attr(any(test, feature = "fake"), derive(Debug, PartialEq, Dummy))]
 pub struct Subscription {
     #[serde(rename = "PK")]
@@ -13,6 +15,13 @@ pub struct Subscription {
 
     created_at: String,
     // probably want user data here
+}
+
+impl Subscription {
+    pub fn to_watcher_item(self) -> WatcherItem {
+        let edge = self.into();
+        WatcherItem::Edge(edge)
+    }
 }
 
 #[cfg(test)]

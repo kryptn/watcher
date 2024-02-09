@@ -3,9 +3,9 @@ use serde::{Deserialize, Serialize};
 #[cfg(any(test, feature = "fake"))]
 use fake::{faker::name::raw::*, locales::*, Dummy, Fake, Faker};
 
-use crate::types::{Endpoint, Observation};
+use crate::types::{Endpoint, Observation, WatcherItem};
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone)]
 #[cfg_attr(any(test, feature = "fake"), derive(Debug, PartialEq, Dummy))]
 pub struct Measurement {
     #[serde(rename = "PK")]
@@ -20,6 +20,13 @@ impl From<(&Endpoint, &Observation)> for Measurement {
             endpoint_id: endpoint.id.clone(),
             observation_id: observation.id.clone(),
         }
+    }
+}
+
+impl Measurement {
+    pub fn to_watcher_item(self) -> WatcherItem {
+        let edge = self.into();
+        WatcherItem::Edge(edge)
     }
 }
 

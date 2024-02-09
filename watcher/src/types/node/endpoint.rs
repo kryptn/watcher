@@ -3,13 +3,15 @@ use serde::{Deserialize, Serialize};
 #[cfg(any(test, feature = "fake"))]
 use fake::{faker::name::raw::*, locales::*, Dummy, Fake, Faker};
 
+use crate::types::WatcherItem;
+
 #[derive(Serialize, Deserialize, Clone)]
 #[cfg_attr(any(test, feature = "fake"), derive(Debug, PartialEq, Dummy))]
 pub struct Endpoint {
     #[serde(rename = "PK")]
     pub id: String,
     #[serde(rename = "SK")]
-    pub sk: String,
+    pub _sk: String,
 
     pub name: String,
     // endpoint_type: EndpointType,
@@ -33,12 +35,17 @@ impl Endpoint {
     ) -> Self {
         Self {
             id: id.clone(),
-            sk: id,
+            _sk: id,
             name,
             endpoint,
             rate,
             schedule_name,
         }
+    }
+
+    pub fn to_watcher_item(self) -> WatcherItem {
+        let node = self.into();
+        WatcherItem::Node(node)
     }
 
     #[cfg(any(test, feature = "fake"))]
@@ -47,7 +54,7 @@ impl Endpoint {
 
         let mut fake: Endpoint = Faker.fake();
         fake.id = id.clone();
-        fake.sk = id;
+        fake._sk = id;
         fake
     }
 }
@@ -91,7 +98,7 @@ mod test {
     fn test_endpoint_serialization() {
         let endpoint = Endpoint {
             id: "id".to_string(),
-            sk: "sk".to_string(),
+            _sk: "sk".to_string(),
             name: "name".to_string(),
             endpoint: EndpointType::Rss(Rss {
                 url: "url".to_string(),
@@ -132,7 +139,7 @@ mod test {
 
         let expected = Endpoint {
             id: "id".to_string(),
-            sk: "sk".to_string(),
+            _sk: "sk".to_string(),
             name: "name".to_string(),
             endpoint: EndpointType::Rss(Rss {
                 url: "url".to_string(),
@@ -149,6 +156,6 @@ mod test {
     fn test_endpoint_fake() {
         let endpoint = Endpoint::mock();
         println!("{:#?}", endpoint);
-        assert_eq!(endpoint.id, endpoint.sk);
+        assert_eq!(endpoint.id, endpoint._sk);
     }
 }

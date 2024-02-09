@@ -1,4 +1,5 @@
 mod messaging;
-mod repository;
+pub mod repository;
 mod storage;
+
 pub mod types;

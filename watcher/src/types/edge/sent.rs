@@ -3,9 +3,9 @@ use serde::{Deserialize, Serialize};
 #[cfg(any(test, feature = "fake"))]
 use fake::{faker::name::raw::*, locales::*, Dummy, Fake, Faker};
 
-use crate::types::{Broadcast, Sink};
+use crate::types::{Broadcast, Sink, WatcherItem};
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone)]
 #[cfg_attr(any(test, feature = "fake"), derive(Debug, PartialEq, Dummy))]
 pub struct Sent {
     #[serde(rename = "PK")]
@@ -20,6 +20,13 @@ impl From<(&Broadcast, &Sink)> for Sent {
             broadcast_id: broadcast.id.clone(),
             sink_id: sink.id.clone(),
         }
+    }
+}
+
+impl Sent {
+    pub fn to_watcher_item(self) -> WatcherItem {
+        let edge = self.into();
+        WatcherItem::Edge(edge)
     }
 }
 
