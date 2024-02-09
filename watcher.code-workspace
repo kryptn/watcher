@@ -1,27 +1,15 @@
 {
-	"folders": [
-		{
-			"name": "watcher",
-			"path": "."
-		},
-		// {
-		// 	"name": "watcher",
-		// 	"path": "watcher"
-		// },
-		// {
-		// 	"name": "cli",
-		// 	"path": "cli"
-		// },
-		// {
-		// 	"name": "add-endpoint",
-		// 	"path": "functions/add-endpoint"
-		// }
-	],
-	"settings": {
-		"rust-analyzer.linkedProjects": [
-			"./watcher/Cargo.toml",
-			"./cli/Cargo.toml",
-			"./functions/add-endpoint/Cargo.toml",
-		]
-	}
+  "folders": [
+    {
+      "name": "watcher",
+      "path": "."
+    }
+  ],
+  "settings": {
+    "rust-analyzer.linkedProjects": [
+      "./functions/add-endpoint/Cargo.toml",
+      "./cli/Cargo.toml",
+      "./watcher/Cargo.toml"
+    ]
+  }
 }

@@ -12,3 +12,10 @@ generate-ci:
     cp watcher/github-action.yaml .github/workflows/ci-watcher.yaml
     cp functions/add-endpoint/github-action.yaml .github/workflows/ci-fn-add-endpoint.yaml
 
+ws_file_default:="watcher.code-workspace"
+
+update-workspace ws_file=ws_file_default:
+    rg --files -g 'Cargo.toml' | jq -Rn '.settings."rust-analyzer.linkedProjects" = [inputs | ("./" + .)]' > projects.json
+    jq -s '.[0] * .[1]' {{ws_file}} projects.json > tmp.{{ws_file}}
+    rm projects.json
+    mv tmp.{{ws_file}} {{ws_file}}
