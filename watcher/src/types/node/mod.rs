@@ -12,8 +12,8 @@ pub use sink::*;
 pub mod broadcast;
 pub use broadcast::*;
 
-#[derive(Serialize, Deserialize, Clone)]
-#[cfg_attr(test, derive(Debug, PartialEq))]
+#[derive(Serialize, Deserialize, Clone, Debug)]
+#[cfg_attr(test, derive(PartialEq))]
 #[serde(rename_all = "snake_case", tag = "node_type")]
 pub enum Node {
     Endpoint(Endpoint),

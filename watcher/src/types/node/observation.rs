@@ -5,8 +5,8 @@ use fake::{faker::name::raw::*, locales::*, Dummy, Fake, Faker};
 
 use crate::types::WatcherItem;
 
-#[derive(Serialize, Deserialize, Clone)]
-#[cfg_attr(any(test, feature = "fake"), derive(Debug, PartialEq, Dummy))]
+#[derive(Serialize, Deserialize, Clone, Debug)]
+#[cfg_attr(any(test, feature = "fake"), derive(PartialEq, Dummy))]
 pub struct Observation {
     #[serde(rename = "PK")]
     pub id: String,

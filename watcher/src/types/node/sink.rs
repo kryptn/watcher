@@ -5,8 +5,8 @@ use fake::{faker::name::raw::*, locales::*, Dummy, Fake, Faker};
 
 use crate::types::WatcherItem;
 
-#[derive(Serialize, Deserialize, Clone)]
-#[cfg_attr(any(test, feature = "fake"), derive(Debug, PartialEq, Dummy))]
+#[derive(Serialize, Deserialize, Clone, Debug)]
+#[cfg_attr(any(test, feature = "fake"), derive(PartialEq, Dummy))]
 pub struct Sink {
     #[serde(rename = "PK")]
     pub id: String,
@@ -39,15 +39,15 @@ impl Sink {
     }
 }
 
-#[derive(Serialize, Deserialize, Clone)]
-#[cfg_attr(any(test, feature = "fake"), derive(Debug, PartialEq, Dummy))]
+#[derive(Serialize, Deserialize, Clone, Debug)]
+#[cfg_attr(any(test, feature = "fake"), derive(PartialEq, Dummy))]
 #[serde(rename_all = "snake_case")]
 pub struct Discord {
     pub url: String,
 }
 
-#[derive(Serialize, Deserialize, Clone)]
-#[cfg_attr(any(test, feature = "fake"), derive(Debug, PartialEq, Dummy))]
+#[derive(Serialize, Deserialize, Clone, Debug)]
+#[cfg_attr(any(test, feature = "fake"), derive(PartialEq, Dummy))]
 #[serde(rename_all = "snake_case", tag = "sink_type", content = "sink_data")]
 pub enum SinkType {
     Discord(Discord),

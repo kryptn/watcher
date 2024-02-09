@@ -5,8 +5,8 @@ pub mod edge;
 pub use edge::*;
 use serde::{Deserialize, Serialize};
 
-#[derive(Serialize, Deserialize, Clone)]
-#[cfg_attr(test, derive(Debug, PartialEq))]
+#[derive(Serialize, Deserialize, Clone, Debug)]
+#[cfg_attr(test, derive(PartialEq))]
 #[serde(rename_all = "snake_case", tag = "item_type")]
 pub enum WatcherItem {
     Node(Node),

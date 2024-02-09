@@ -7,8 +7,8 @@ use crate::types::WatcherItem;
 
 use super::Node;
 
-#[derive(Serialize, Deserialize, Clone)]
-#[cfg_attr(any(test, feature = "fake"), derive(Debug, PartialEq, Dummy))]
+#[derive(Serialize, Deserialize, Clone, Debug)]
+#[cfg_attr(any(test, feature = "fake"), derive(PartialEq, Dummy))]
 pub struct Broadcast {
     #[serde(rename = "PK")]
     pub id: String,
