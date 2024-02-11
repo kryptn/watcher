@@ -44,10 +44,12 @@ mod test {
 
     #[test]
     fn test_broadcast_serialization() {
+        let now = chrono::Utc::now();
+
         let broadcast = Broadcast {
             id: "id".to_string(),
             sk: "sk".to_string(),
-            created_at: chrono::Utc::now(),
+            created_at: now,
             contents: "contents".to_string(),
             ttl: Some(60),
         };
@@ -55,7 +57,7 @@ mod test {
         let expected = json!({
             "PK": "id",
             "SK": "sk",
-            "created_at": "created_at",
+            "created_at": now,
             "contents": "contents",
             "ttl": 60
         });
@@ -66,10 +68,12 @@ mod test {
 
     #[test]
     fn test_broadcast_deserialization() {
+        let now = chrono::Utc::now();
+
         let json = json!({
             "PK": "id",
             "SK": "sk",
-            "created_at": "created_at",
+            "created_at": now,
             "contents": "contents",
             "ttl": 60
         });
@@ -77,7 +81,7 @@ mod test {
         let expected = Broadcast {
             id: "id".to_string(),
             sk: "sk".to_string(),
-            created_at: chrono::Utc::now(),
+            created_at: now,
             contents: "contents".to_string(),
             ttl: Some(60),
         };

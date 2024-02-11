@@ -41,16 +41,18 @@ mod test {
 
     #[test]
     fn test_subscription_serialization() {
+        let now = chrono::Utc::now();
+
         let subscription = Subscription {
             endpoint_id: "endpoint_id".to_string(),
             sink_id: "sink_id".to_string(),
-            created_at: chrono::Utc::now(),
+            created_at: now,
         };
 
         let expected = json!({
             "PK": "endpoint_id",
             "SK": "sink_id",
-            "created_at": "created_at",
+            "created_at": now,
         });
 
         let serialized = serde_json::to_value(&subscription).unwrap();
@@ -59,16 +61,18 @@ mod test {
 
     #[test]
     fn test_subscription_deserialization() {
+        let now = chrono::Utc::now();
+
         let expected = Subscription {
             endpoint_id: "endpoint_id".to_string(),
             sink_id: "sink_id".to_string(),
-            created_at: chrono::Utc::now(),
+            created_at: now,
         };
 
         let deserialized: Subscription = serde_json::from_value(json!({
             "PK": "endpoint_id",
             "SK": "sink_id",
-            "created_at": "created_at",
+            "created_at": now,
         }))
         .unwrap();
         assert_eq!(deserialized, expected);

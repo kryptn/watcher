@@ -60,10 +60,12 @@ mod test {
 
     #[test]
     fn test_sink_serialization() {
+        let now = chrono::Utc::now();
+
         let sink = Sink {
             id: "id".to_string(),
             _sk: "sk".to_string(),
-            created_at: chrono::Utc::now(),
+            created_at: now,
             sink: SinkType::Discord(Discord {
                 url: "url".to_string(),
             }),
@@ -73,7 +75,7 @@ mod test {
         let expected = json!({
             "PK": "id",
             "SK": "sk",
-            "created_at": "created_at",
+            "created_at": now,
             "sink_type": "discord",
             "sink_data": {
                 "url": "url"
@@ -87,10 +89,12 @@ mod test {
 
     #[test]
     fn test_sink_deserialization() {
+        let now = chrono::Utc::now();
+
         let json = json!({
             "PK": "id",
             "SK": "sk",
-            "created_at": "created_at",
+            "created_at": now,
             "sink_type": "discord",
             "sink_data": {
                 "url": "url"
@@ -101,7 +105,7 @@ mod test {
         let expected = Sink {
             id: "id".to_string(),
             _sk: "sk".to_string(),
-            created_at: chrono::Utc::now(),
+            created_at: now,
             sink: SinkType::Discord(Discord {
                 url: "url".to_string(),
             }),

@@ -45,10 +45,12 @@ mod test {
 
     #[test]
     fn test_observation_serialization() {
+        let now = chrono::Utc::now();
+
         let observation = Observation {
             id: "id".to_string(),
             _sk: "sk".to_string(),
-            created_at: chrono::Utc::now(),
+            created_at: now,
             s3_key: Some("s3_key".to_string()),
             headers: vec![("key".to_string(), "value".to_string())],
             status_code: 200,
@@ -58,7 +60,7 @@ mod test {
         let expected = json!({
             "PK": "id",
             "SK": "sk",
-            "created_at": "created_at",
+            "created_at": now,
             "s3_key": "s3_key",
             "headers": [
                 ("key", "value"),
@@ -73,10 +75,12 @@ mod test {
 
     #[test]
     fn test_observation_deserialization() {
+        let now = chrono::Utc::now();
+
         let json = json!({
             "PK": "id",
             "SK": "sk",
-            "created_at": "created_at",
+            "created_at": now,
             "s3_key": "s3_key",
             "headers": [
                 ("key", "value"),
@@ -88,7 +92,7 @@ mod test {
         let expected = Observation {
             id: "id".to_string(),
             _sk: "sk".to_string(),
-            created_at: chrono::Utc::now(),
+            created_at: now,
             s3_key: Some("s3_key".to_string()),
             headers: vec![("key".to_string(), "value".to_string())],
             status_code: 200,
