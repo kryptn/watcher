@@ -8,6 +8,7 @@
   "settings": {
     "rust-analyzer.linkedProjects": [
       "./functions/add-endpoint/Cargo.toml",
+      "./functions/observe-endpoint/Cargo.toml",
       "./cli/Cargo.toml",
       "./watcher/Cargo.toml"
     ]

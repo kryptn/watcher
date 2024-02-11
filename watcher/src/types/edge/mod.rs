@@ -15,7 +15,7 @@ pub use sent::*;
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[cfg_attr(test, derive(PartialEq))]
-#[serde(rename_all = "snake_case", tag = "node_type")]
+#[serde(rename_all = "snake_case", tag = "edge_type")]
 pub enum Edge {
     Measurement(Measurement),
     Subscription(Subscription),

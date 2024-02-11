@@ -3,6 +3,10 @@ pub use node::*;
 
 pub mod edge;
 pub use edge::*;
+
+pub mod events;
+pub use events::*;
+
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Clone, Debug)]

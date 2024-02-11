@@ -1,5 +1,5 @@
 use aws_sdk_dynamodb::types;
-use serde_dynamo::{to_item, Item};
+use serde_dynamo::{to_attribute_value, to_item, Item};
 
 use crate::types::{Edge, Endpoint, Node, Sink, Subscription, WatcherItem};
 
@@ -162,5 +162,31 @@ impl Repository {
         let edge: Edge = subscription.clone().into();
         self.put_item(edge).await?;
         Ok(())
+    }
+
+    pub async fn get_sinks_for_endpoint(
+        &self,
+        endpoint_id: String,
+    ) -> Result<Vec<Subscription>, Box<dyn std::error::Error>> {
+        let response = self
+            .client
+            .query()
+            .table_name(self.table_name.clone())
+            .key_condition_expression("PK = :pk and begins_with(SK, :sink)")
+            .expression_attribute_values(":pk", to_attribute_value(endpoint_id)?)
+            .expression_attribute_values(":sink", to_attribute_value("Sink")?)
+            .send()
+            .await?;
+
+        let items = response.items.unwrap_or_default();
+
+        dbg!(&items);
+
+        let items: Vec<Subscription> = items
+            .into_iter()
+            .filter_map(|item| Some(serde_dynamo::from_item(item).unwrap()))
+            .collect();
+
+        Ok(items)
     }
 }

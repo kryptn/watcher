@@ -17,6 +17,8 @@ tokio = { version = "1.36.0", features = ["full"] }
 
 fake = { version = "2.9.2", features = ["derive", "chrono", "http"], optional=true}
 chrono = { version = "0.4.33", features = ["serde"] }
+aws-sdk-eventbridge = "1.13.0"
+aws-sdk-scheduler = "1.13.0"
 
 [features]
 default = []

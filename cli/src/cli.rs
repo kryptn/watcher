@@ -26,6 +26,10 @@ pub enum Commands {
         sink_count: u32,
         connectivity: u32,
     },
+
+    GetSinksForEndpoint {
+        endpoint_id: String,
+    },
 }
 
 // #[derive(Debug, Args)]
