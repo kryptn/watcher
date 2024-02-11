@@ -21,6 +21,7 @@ resource "spacelift_stack" "watcher" {
   description       = "Watcher"
   name              = "Watcher"
   project_root      = "infra/core/"
-  repository        = "kryptn/watcher"
+  repository        = "watcher"
   terraform_version = "1.5.7"
+  
 }
