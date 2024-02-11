@@ -11,6 +11,7 @@ generate-ci:
     cp cli/github-action.yaml .github/workflows/ci-cli.yaml
     cp watcher/github-action.yaml .github/workflows/ci-watcher.yaml
     cp functions/add-endpoint/github-action.yaml .github/workflows/ci-fn-add-endpoint.yaml
+    cp functions/observe-endpoint/github-action.yaml .github/workflows/ci-fn-observe-endpoint.yaml
 
 ws_file_default:="watcher.code-workspace"
 
