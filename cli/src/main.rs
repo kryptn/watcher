@@ -133,7 +133,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             for subscription in subscriptions.iter() {
                 repo.create_subscription(subscription).await?;
             }
-        },
+        }
         cli::Commands::GetSinksForEndpoint { endpoint_id } => {
             let subs = repo.get_sinks_for_endpoint(endpoint_id).await?;
             for sub in subs {
