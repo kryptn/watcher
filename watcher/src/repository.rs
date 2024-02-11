@@ -1,9 +1,5 @@
-use aws_sdk_dynamodb::types::{
-    builders::{AttributeDefinitionBuilder, KeySchemaElementBuilder, ProvisionedThroughputBuilder},
-    AttributeDefinition, GlobalSecondaryIndex, KeySchemaElement, KeyType, Projection,
-    ProjectionType, ProvisionedThroughput, ScalarAttributeType,
-};
-use serde_dynamo::Item;
+use aws_sdk_dynamodb::types;
+use serde_dynamo::{to_item, Item};
 
 use crate::types::{Edge, Endpoint, Node, Sink, Subscription, WatcherItem};
 
@@ -32,55 +28,61 @@ impl Repository {
             .create_table()
             .table_name(self.table_name.clone())
             .attribute_definitions(
-                AttributeDefinition::builder()
+                types::AttributeDefinition::builder()
                     .attribute_name("PK")
-                    .attribute_type(ScalarAttributeType::S)
+                    .attribute_type(types::ScalarAttributeType::S)
                     .build()?,
             )
             .attribute_definitions(
-                AttributeDefinition::builder()
+                types::AttributeDefinition::builder()
                     .attribute_name("SK")
-                    .attribute_type(ScalarAttributeType::S)
+                    .attribute_type(types::ScalarAttributeType::S)
                     .build()?,
             )
             .key_schema(
-                KeySchemaElement::builder()
+                types::KeySchemaElement::builder()
                     .attribute_name("PK")
-                    .key_type(KeyType::Hash)
+                    .key_type(types::KeyType::Hash)
                     .build()?,
             )
             .key_schema(
-                KeySchemaElement::builder()
+                types::KeySchemaElement::builder()
                     .attribute_name("SK")
-                    .key_type(KeyType::Range)
+                    .key_type(types::KeyType::Range)
                     .build()?,
             )
             .global_secondary_indexes(
-                GlobalSecondaryIndex::builder()
+                types::GlobalSecondaryIndex::builder()
                     .index_name("AdjacencyList")
                     .projection(
-                        Projection::builder()
-                            .projection_type(ProjectionType::All)
+                        types::Projection::builder()
+                            .projection_type(types::ProjectionType::All)
                             .build(),
                     )
                     .key_schema(
-                        KeySchemaElement::builder()
+                        types::KeySchemaElement::builder()
                             .attribute_name("SK")
-                            .key_type(KeyType::Hash)
+                            .key_type(types::KeyType::Hash)
                             .build()?,
                     )
                     .key_schema(
-                        KeySchemaElement::builder()
+                        types::KeySchemaElement::builder()
                             .attribute_name("PK")
-                            .key_type(KeyType::Range)
+                            .key_type(types::KeyType::Range)
+                            .build()?,
+                    )
+                    .provisioned_throughput(
+                        types::ProvisionedThroughput::builder()
+                            .read_capacity_units(60)
+                            .write_capacity_units(60)
                             .build()?,
                     )
                     .build()?,
             )
             .provisioned_throughput(
-                ProvisionedThroughput::builder()
-                    .read_capacity_units(5)
-                    .write_capacity_units(5)
+                types::ProvisionedThroughput::builder()
+                    .read_capacity_units(60)
+                    .write_capacity_units(60)
                     .build()?,
             )
             .send()

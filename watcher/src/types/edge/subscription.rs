@@ -34,6 +34,12 @@ impl Subscription {
     }
 }
 
+impl Into<WatcherItem> for Subscription {
+    fn into(self) -> WatcherItem {
+        WatcherItem::Edge(self.into())
+    }
+}
+
 #[cfg(test)]
 mod test {
     use super::*;

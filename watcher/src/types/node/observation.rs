@@ -38,6 +38,12 @@ impl Observation {
     }
 }
 
+impl Into<WatcherItem> for Observation {
+    fn into(self) -> WatcherItem {
+        WatcherItem::Node(self.into())
+    }
+}
+
 #[cfg(test)]
 mod test {
     use super::*;

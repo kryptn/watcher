@@ -29,7 +29,11 @@ impl Sent {
         WatcherItem::Edge(edge)
     }
 }
-
+impl Into<WatcherItem> for Sent {
+    fn into(self) -> WatcherItem {
+        WatcherItem::Edge(self.into())
+    }
+}
 #[cfg(test)]
 mod test {
     use crate::types::sink;

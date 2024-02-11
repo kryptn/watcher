@@ -37,6 +37,12 @@ impl Broadcast {
     }
 }
 
+impl Into<WatcherItem> for Broadcast {
+    fn into(self) -> WatcherItem {
+        WatcherItem::Node(self.into())
+    }
+}
+
 #[cfg(test)]
 mod test {
     use super::*;

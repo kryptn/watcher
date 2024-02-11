@@ -59,6 +59,12 @@ impl Endpoint {
     }
 }
 
+impl Into<WatcherItem> for Endpoint {
+    fn into(self) -> WatcherItem {
+        WatcherItem::Node(self.into())
+    }
+}
+
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[cfg_attr(any(test, feature = "fake"), derive(PartialEq, Dummy))]
 #[serde(rename_all = "snake_case")]

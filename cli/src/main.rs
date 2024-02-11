@@ -8,19 +8,27 @@ use watcher::{
 
 use aws_sdk_dynamodb as dynamodb;
 
+use rand::{thread_rng, Rng};
+
 mod cli;
 
 fn create_example_data(
-    endpoints: usize,
-    sinks: usize,
+    endpoints: u32,
+    sinks: u32,
+    conn_pct: u32,
 ) -> (Vec<Endpoint>, Vec<Sink>, Vec<Subscription>) {
+    let mut rng = thread_rng();
+
     let sinks = (0..sinks).map(|_| Sink::mock()).collect::<Vec<_>>();
     let endpoints = (0..endpoints).map(|_| Endpoint::mock()).collect::<Vec<_>>();
     let subscriptions = sinks
         .iter()
         .map(|sink| {
             endpoints.iter().map(|endpoint| {
-                if rand::random() {
+                let mut rng = rng.clone();
+                let n: &u32 = &rng.gen_range(0..=100);
+
+                if n <= &conn_pct {
                     let subscription = Subscription::new(endpoint.id.clone(), sink.id.clone());
                     Some(subscription)
                 } else {
@@ -56,10 +64,20 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     dbg!(&cli);
 
+    let table_name = "AdjacencyListExplore";
+
+    let config = aws_config::from_env()
+        .endpoint_url("http://localhost:8000")
+        .load()
+        .await;
+
+    let client = aws_sdk_dynamodb::Client::new(&config);
+    let repo = Repository::new(table_name.to_string(), client);
+
     match cli.command {
-        cli::Commands::Create(create) => {
-            let create = create.command.unwrap();
-            match create {
+        cli::Commands::Create(cmd) => {
+            let cmd = cmd.command.unwrap();
+            match cmd {
                 cli::CreateCommands::Endpoint { name } => {
                     println!("create endpoint -> {}", name);
                 }
@@ -74,6 +92,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 }
                 cli::CreateCommands::Table {} => {
                     println!("create table");
+                    repo.create_table().await?;
                 }
             }
         }
@@ -94,33 +113,28 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 }
                 cli::DeleteCommands::Table {} => {
                     println!("delete table");
+                    repo.delete_table().await?;
                 }
             }
         }
+        cli::Commands::GenerateData {
+            endpoint_count,
+            sink_count,
+            connectivity,
+        } => {
+            let (endpoints, sinks, subscriptions) =
+                create_example_data(endpoint_count, sink_count, connectivity);
+            for endpoint in endpoints.iter() {
+                repo.create_endpoint(endpoint).await?;
+            }
+            for sink in sinks.iter() {
+                repo.create_sink(sink).await?;
+            }
+            for subscription in subscriptions.iter() {
+                repo.create_subscription(subscription).await?;
+            }
+        }
     }
-
-    // let table_name = "AdjacencyListExplore";
-
-    // let config = aws_config::from_env()
-    //     .endpoint_url("http://localhost:8000")
-    //     .load()
-    //     .await;
-
-    // let client = aws_sdk_dynamodb::Client::new(&config);
-
-    // let repo = Repository::new(table_name.to_string(), client);
-    // repo.put_item(Endpoint::mock().to_watcher_item()).await?;
-
-    // let (endpoints, sinks, subscriptions) = create_example_data(10, 10);
-    // for endpoint in endpoints.iter() {
-    //     repo.create_endpoint(endpoint).await?;
-    // }
-    // for sink in sinks.iter() {
-    //     repo.create_sink(sink).await?;
-    // }
-    // for subscription in subscriptions.iter() {
-    //     repo.create_subscription(subscription).await?;
-    // }
 
     Ok(())
 }

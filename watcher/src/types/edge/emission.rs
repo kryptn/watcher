@@ -30,6 +30,12 @@ impl Emission {
     }
 }
 
+impl Into<WatcherItem> for Emission {
+    fn into(self) -> WatcherItem {
+        WatcherItem::Edge(self.into())
+    }
+}
+
 #[cfg(test)]
 mod test {
     use super::*;

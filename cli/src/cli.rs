@@ -20,6 +20,12 @@ pub enum Commands {
 
     #[command(arg_required_else_help = true)]
     Delete(DeleteArgs),
+
+    GenerateData {
+        endpoint_count: u32,
+        sink_count: u32,
+        connectivity: u32,
+    },
 }
 
 // #[derive(Debug, Args)]
