@@ -15,7 +15,7 @@ provider "spacelift" {
 
 
 resource "spacelift_stack" "watcher" {
-  administrative    = true
+  administrative    = false
   autodeploy        = true
   branch            = "main"
   description       = "Watcher"
