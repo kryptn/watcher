@@ -1,5 +1,3 @@
-
-
 fmt-all:
     rg --files -g 'Cargo.toml' | xargs -n1 cargo fmt --manifest-path
 
