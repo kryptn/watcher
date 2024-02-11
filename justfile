@@ -8,10 +8,10 @@ build-function fn:
     ls -lah functions/add-endpoint/target/lambda/{{fn}} | grep bootstrap
 
 generate-ci:
-    cp cli/github-action.yaml .github/workflows/ci-cli.yaml
-    cp watcher/github-action.yaml .github/workflows/ci-watcher.yaml
-    cp functions/add-endpoint/github-action.yaml .github/workflows/ci-fn-add-endpoint.yaml
-    cp functions/observe-endpoint/github-action.yaml .github/workflows/ci-fn-observe-endpoint.yaml
+    #!/bin/bash
+    for action in `rg --files -g 'github-action.yaml'`; do
+        cp $action .github/workflows/ci-$(basename $(dirname $action)).yaml
+    done
 
 ws_file_default:="watcher.code-workspace"
 
