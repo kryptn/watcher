@@ -19,6 +19,9 @@ fake = { version = "2.9.2", features = ["derive", "chrono", "http"], optional=tr
 chrono = { version = "0.4.33", features = ["serde"] }
 aws-sdk-eventbridge = "1.13.0"
 aws-sdk-scheduler = "1.13.0"
+aws-sdk-s3 = "1.15.0"
+aws-sdk-sns = "1.13.0"
+aws-sdk-sqs = "1.13.0"
 
 [features]
 default = []
