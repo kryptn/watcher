@@ -8,7 +8,7 @@ on:
       - functions/add-endpoint/**
       - watcher/**
 
-name: add-endpoint -- ci
+name: ci -- add-endpoint
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true

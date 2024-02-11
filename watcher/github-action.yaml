@@ -6,7 +6,7 @@ on:
     paths:
       - watcher/**
 
-name: watcher -- ci
+name: ci -- watcher
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true

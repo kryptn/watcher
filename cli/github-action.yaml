@@ -8,7 +8,7 @@ on:
       - cli/**
       - watcher/**
 
-name: cli -- ci
+name: ci -- cli
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
