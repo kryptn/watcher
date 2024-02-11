@@ -58,7 +58,7 @@ jobs:
           workspaces: "functions/add-endpoint -> target"
           cache-all-crates: "true"
           save-if: ${{ github.ref == 'refs/heads/main' }}
-      - run: cargo test --manifest-path functions/add-endpoint/Cargo.toml
+      - run: cargo fmt --manifest-path functions/add-endpoint/Cargo.toml
 
   clippy:
     name: Clippy

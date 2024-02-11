@@ -58,7 +58,7 @@ jobs:
           workspaces: "cli -> target"
           cache-all-crates: "true"
           save-if: ${{ github.ref == 'refs/heads/main' }}
-      - run: cargo test --manifest-path cli/Cargo.toml
+      - run: cargo fmt --manifest-path cli/Cargo.toml
 
   clippy:
     name: Clippy
