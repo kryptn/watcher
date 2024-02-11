@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 
 #[cfg(any(test, feature = "fake"))]
-use fake::{faker::name::raw::*, locales::*, Dummy, Fake, Faker};
+use fake::{Dummy, Fake, Faker};
 
 use crate::types::WatcherItem;
 
@@ -13,7 +13,7 @@ pub struct Sink {
     #[serde(rename = "SK")]
     pub _sk: String,
 
-    created_at: String,
+    created_at: chrono::DateTime<chrono::Utc>,
 
     #[serde(flatten)]
     sink: SinkType,
@@ -63,7 +63,7 @@ mod test {
         let sink = Sink {
             id: "id".to_string(),
             _sk: "sk".to_string(),
-            created_at: "created_at".to_string(),
+            created_at: chrono::Utc::now(),
             sink: SinkType::Discord(Discord {
                 url: "url".to_string(),
             }),
@@ -101,7 +101,7 @@ mod test {
         let expected = Sink {
             id: "id".to_string(),
             _sk: "sk".to_string(),
-            created_at: "created_at".to_string(),
+            created_at: chrono::Utc::now(),
             sink: SinkType::Discord(Discord {
                 url: "url".to_string(),
             }),

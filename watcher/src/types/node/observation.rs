@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 
 #[cfg(any(test, feature = "fake"))]
-use fake::{faker::name::raw::*, locales::*, Dummy, Fake, Faker};
+use fake::{Dummy, Fake, Faker};
 
 use crate::types::WatcherItem;
 
@@ -12,7 +12,7 @@ pub struct Observation {
     pub id: String,
     #[serde(rename = "SK")]
     pub _sk: String,
-    created_at: String,
+    created_at: chrono::DateTime<chrono::Utc>,
     #[serde(skip_serializing_if = "Option::is_none")]
     s3_key: Option<String>,
     headers: Vec<(String, String)>,
@@ -48,7 +48,7 @@ mod test {
         let observation = Observation {
             id: "id".to_string(),
             _sk: "sk".to_string(),
-            created_at: "created_at".to_string(),
+            created_at: chrono::Utc::now(),
             s3_key: Some("s3_key".to_string()),
             headers: vec![("key".to_string(), "value".to_string())],
             status_code: 200,
@@ -88,7 +88,7 @@ mod test {
         let expected = Observation {
             id: "id".to_string(),
             _sk: "sk".to_string(),
-            created_at: "created_at".to_string(),
+            created_at: chrono::Utc::now(),
             s3_key: Some("s3_key".to_string()),
             headers: vec![("key".to_string(), "value".to_string())],
             status_code: 200,

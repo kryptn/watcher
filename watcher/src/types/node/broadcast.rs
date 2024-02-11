@@ -1,11 +1,9 @@
 use serde::{Deserialize, Serialize};
 
 #[cfg(any(test, feature = "fake"))]
-use fake::{faker::name::raw::*, locales::*, Dummy, Fake, Faker};
+use fake::{Dummy, Fake, Faker};
 
 use crate::types::WatcherItem;
-
-use super::Node;
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[cfg_attr(any(test, feature = "fake"), derive(PartialEq, Dummy))]
@@ -15,7 +13,7 @@ pub struct Broadcast {
     #[serde(rename = "SK")]
     pub sk: String,
 
-    created_at: String,
+    created_at: chrono::DateTime<chrono::Utc>,
     contents: String,
 
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -23,7 +21,7 @@ pub struct Broadcast {
 }
 
 impl Broadcast {
-    #[cfg(test)]
+    #[cfg(any(test, feature = "fake"))]
     pub fn mock() -> Self {
         let id = format!("Broadcast:{}", 20.fake::<String>());
 
@@ -49,7 +47,7 @@ mod test {
         let broadcast = Broadcast {
             id: "id".to_string(),
             sk: "sk".to_string(),
-            created_at: "created_at".to_string(),
+            created_at: chrono::Utc::now(),
             contents: "contents".to_string(),
             ttl: Some(60),
         };
@@ -79,7 +77,7 @@ mod test {
         let expected = Broadcast {
             id: "id".to_string(),
             sk: "sk".to_string(),
-            created_at: "created_at".to_string(),
+            created_at: chrono::Utc::now(),
             contents: "contents".to_string(),
             ttl: Some(60),
         };

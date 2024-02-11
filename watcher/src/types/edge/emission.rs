@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 
 #[cfg(any(test, feature = "fake"))]
-use fake::{faker::name::raw::*, locales::*, Dummy, Fake, Faker};
+use fake::{Dummy, Fake, Faker};
 
 use crate::types::{Broadcast, Endpoint, WatcherItem};
 

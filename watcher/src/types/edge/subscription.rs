@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 
 #[cfg(any(test, feature = "fake"))]
-use fake::{faker::name::raw::*, locales::*, Dummy, Fake, Faker};
+use fake::{Dummy, Fake, Faker};
 
 use crate::types::WatcherItem;
 
@@ -11,13 +11,23 @@ pub struct Subscription {
     #[serde(rename = "PK")]
     pub endpoint_id: String,
     #[serde(rename = "SK")]
-    pub observation_id: String,
+    pub sink_id: String,
 
-    created_at: String,
+    // created_at: chrono::DateTime<chrono::Utc>,
+    created_at: chrono::DateTime<chrono::Utc>,
     // probably want user data here
 }
 
 impl Subscription {
+    pub fn new(endpoint_id: String, sink_id: String) -> Self {
+        let created_at = chrono::Utc::now();
+        Self {
+            endpoint_id,
+            sink_id,
+            created_at,
+        }
+    }
+
     pub fn to_watcher_item(self) -> WatcherItem {
         let edge = self.into();
         WatcherItem::Edge(edge)
@@ -33,13 +43,13 @@ mod test {
     fn test_subscription_serialization() {
         let subscription = Subscription {
             endpoint_id: "endpoint_id".to_string(),
-            observation_id: "observation_id".to_string(),
-            created_at: "created_at".to_string(),
+            sink_id: "sink_id".to_string(),
+            created_at: chrono::Utc::now(),
         };
 
         let expected = json!({
             "PK": "endpoint_id",
-            "SK": "observation_id",
+            "SK": "sink_id",
             "created_at": "created_at",
         });
 
@@ -51,13 +61,13 @@ mod test {
     fn test_subscription_deserialization() {
         let expected = Subscription {
             endpoint_id: "endpoint_id".to_string(),
-            observation_id: "observation_id".to_string(),
-            created_at: "created_at".to_string(),
+            sink_id: "sink_id".to_string(),
+            created_at: chrono::Utc::now(),
         };
 
         let deserialized: Subscription = serde_json::from_value(json!({
             "PK": "endpoint_id",
-            "SK": "observation_id",
+            "SK": "sink_id",
             "created_at": "created_at",
         }))
         .unwrap();
