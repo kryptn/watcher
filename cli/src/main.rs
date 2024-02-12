@@ -150,11 +150,13 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             function_name,
             region,
             account_id,
+            role_arn
         } => {
             let target_config = watcher::scheduling::TargetConfig {
                 function_name,
                 region,
                 account_id,
+                role_arn
             };
             let client = scheduling::new().await;
             let schedule_name = format!("schedule-{}", &endpoint_id.replace(":", "-"));

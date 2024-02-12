@@ -2,7 +2,6 @@ use serde::{Deserialize, Serialize};
 
 use super::Observation;
 
-
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ScheduledObservation {
     pub endpoint_id: String,
@@ -14,4 +13,3 @@ pub struct EndpointObserved {
     pub observation_id: String,
     pub observation: Observation,
 }
-

@@ -91,6 +91,30 @@ impl Repository {
         Ok(())
     }
 
+    pub async fn get_item<T>(
+        &self,
+        primary_key: &str,
+        sort_key: &str,
+    ) -> Result<T, Box<dyn std::error::Error>>
+    where
+        T: serde::de::DeserializeOwned,
+    {
+        let response = self
+            .client
+            .get_item()
+            .table_name(self.table_name.clone())
+            .key("PK", to_attribute_value(primary_key)?)
+            .key("SK", to_attribute_value(sort_key)?)
+            .send()
+            .await?;
+
+        let item = response.item.unwrap_or_default();
+
+        let item: T = serde_dynamo::from_item(item)?;
+
+        Ok(item)
+    }
+
     pub async fn put_item<T>(&self, item: T) -> Result<(), Box<dyn std::error::Error>>
     where
         T: serde::Serialize,
@@ -188,5 +212,23 @@ impl Repository {
             .collect();
 
         Ok(items)
+    }
+
+    pub async fn set_schedule_name_for_endpoint(
+        &self,
+        endpoint_id: &str,
+        schedule_name: &str,
+    ) -> Result<(), Box<dyn std::error::Error>> {
+        self.client
+            .update_item()
+            .table_name(self.table_name.clone())
+            .key("PK", to_attribute_value(endpoint_id)?)
+            .key("SK", to_attribute_value(endpoint_id)?)
+            .update_expression("SET schedule_name = :schedule_name")
+            .expression_attribute_values(":schedule_name", to_attribute_value(schedule_name)?)
+            .send()
+            .await?;
+
+        Ok(())
     }
 }

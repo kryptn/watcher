@@ -40,6 +40,7 @@ pub enum Commands {
         function_name: String,
         region: String,
         account_id: String,
+        role_arn: String,
     },
     DeleteSchedule {
         schedule_name: String,

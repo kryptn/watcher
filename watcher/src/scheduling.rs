@@ -3,7 +3,7 @@ use aws_sdk_scheduler::types;
 
 use crate::types::ScheduledObservation;
 
-async fn new() -> scheduler::Client {
+pub async fn new() -> scheduler::Client {
     let config = aws_config::load_from_env().await;
     scheduler::Client::new(&config)
 }
@@ -12,6 +12,7 @@ pub struct TargetConfig {
     pub function_name: String,
     pub region: String,
     pub account_id: String,
+    pub role_arn: String,
 }
 
 impl TargetConfig {
@@ -23,7 +24,7 @@ impl TargetConfig {
     }
 }
 
-async fn create_schedule(
+pub async fn create_schedule(
     client: &scheduler::Client,
     schedule_name: &str,
     target_config: TargetConfig,
@@ -33,7 +34,7 @@ async fn create_schedule(
         {
             "FunctionName": target_config.arn(),
             "InvocationType": "Event",
-            "Payload": target_input,
+            "Payload": serde_json::to_string(target_input)?,
         }
     };
 
@@ -41,15 +42,29 @@ async fn create_schedule(
         .create_schedule()
         .name(schedule_name)
         .schedule_expression("rate(1 minute)")
+        .flexible_time_window(
+            types::FlexibleTimeWindow::builder()
+                .mode(types::FlexibleTimeWindowMode::Off)
+                .build()?,
+        )
         .target(
             types::Target::builder()
                 .arn("arn:aws:scheduler:::aws-sdk:lambda:invoke")
                 .input(input.to_string())
-                .role_arn("")
+                .role_arn(target_config.role_arn)
                 .build()?,
         )
         .send()
         .await?;
 
-    todo!()
+    Ok(())
+}
+
+pub async fn delete_schedule(
+    client: &scheduler::Client,
+    schedule_name: &str,
+) -> Result<(), Box<dyn std::error::Error>> {
+    client.delete_schedule().name(schedule_name).send().await?;
+
+    Ok(())
 }
