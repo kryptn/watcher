@@ -1,4 +1,6 @@
 use clap::Parser;
+use dynamodb::config::endpoint;
+use envconfig::Envconfig;
 use serde_dynamo::{to_item, Item};
 
 use watcher::{
@@ -18,15 +20,13 @@ fn create_example_data(
     sinks: u32,
     conn_pct: u32,
 ) -> (Vec<Endpoint>, Vec<Sink>, Vec<Subscription>) {
-    let mut rng = thread_rng();
-
     let sinks = (0..sinks).map(|_| Sink::mock()).collect::<Vec<_>>();
     let endpoints = (0..endpoints).map(|_| Endpoint::mock()).collect::<Vec<_>>();
     let subscriptions = sinks
         .iter()
         .map(|sink| {
             endpoints.iter().map(|endpoint| {
-                let mut rng = rng.clone();
+                let mut rng = thread_rng();
                 let n: &u32 = &rng.gen_range(0..=100);
 
                 if n <= &conn_pct {
@@ -59,20 +59,31 @@ fn create_example_data(
     (endpoints, sinks, subscriptions)
 }
 
+#[derive(Envconfig)]
+struct Config {
+    #[envconfig(from = "TABLE_NAME")]
+    pub table_name: String,
+
+    #[envconfig(from = "ENDPOINT_URL")]
+    pub endpoint: Option<String>,
+}
+
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let cli = cli::Cli::parse();
+    let config = Config::init_from_env().unwrap();
 
-    dbg!(&cli);
+    let table_name = config.table_name;
 
-    let table_name = "AdjacencyListExplore";
+    let aws_config = {
+        let mut c = aws_config::from_env();
+        if let Some(endpoint) = config.endpoint {
+            c = c.endpoint_url(endpoint);
+        }
+        c.load().await
+    };
 
-    let config = aws_config::from_env()
-        .endpoint_url("http://localhost:8000")
-        .load()
-        .await;
-
-    let client = aws_sdk_dynamodb::Client::new(&config);
+    let client = aws_sdk_dynamodb::Client::new(&aws_config);
     let repo = Repository::new(table_name.to_string(), client);
 
     match cli.command {
