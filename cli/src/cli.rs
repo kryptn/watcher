@@ -15,6 +15,10 @@ pub(crate) struct Cli {
 
 #[derive(Debug, Subcommand)]
 pub enum Commands {
+    Get {
+        id: String,
+    },
+
     #[command(arg_required_else_help = true)]
     Create(CreateArgs),
 
@@ -30,30 +34,17 @@ pub enum Commands {
     GetSinksForEndpoint {
         endpoint_id: String,
     },
+
+    CreateSchedule {
+        endpoint_id: String,
+        function_name: String,
+        region: String,
+        account_id: String,
+    },
+    DeleteSchedule {
+        schedule_name: String,
+    },
 }
-
-// #[derive(Debug, Args)]
-// #[command(args_conflicts_with_subcommands = true)]
-// struct StashArgs {
-//     #[command(subcommand)]
-//     command: Option<StashCommands>,
-
-//     #[command(flatten)]
-//     push: StashPushArgs,
-// }
-
-// #[derive(Debug, Subcommand)]
-// enum StashCommands {
-//     Push(StashPushArgs),
-//     Pop { stash: Option<String> },
-//     Apply { stash: Option<String> },
-// }
-
-// #[derive(Debug, Args)]
-// struct StashPushArgs {
-//     #[arg(short, long)]
-//     message: Option<String>,
-// }
 
 #[derive(Debug, Args)]
 #[command(args_conflicts_with_subcommands = true)]
@@ -112,27 +103,3 @@ pub enum DeleteCommands {
 
     Table {},
 }
-
-// fn main() {
-//     let args = Cli::parse();
-
-//     match args.command {
-
-//         Commands::Stash(stash) => {
-//             let stash_cmd = stash.command.unwrap_or(StashCommands::Push(stash.push));
-//             match stash_cmd {
-//                 StashCommands::Push(push) => {
-//                     println!("Pushing {push:?}");
-//                 }
-//                 StashCommands::Pop { stash } => {
-//                     println!("Popping {stash:?}");
-//                 }
-//                 StashCommands::Apply { stash } => {
-//                     println!("Applying {stash:?}");
-//                 }
-//             }
-//         }
-//     }
-
-//     // Continued program logic goes here...
-// }

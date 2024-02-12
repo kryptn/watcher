@@ -4,8 +4,6 @@ use tracing_subscriber::filter::{EnvFilter, LevelFilter};
 use serde::{Deserialize, Serialize};
 use watcher::types::ScheduledObservation;
 
-
-
 /// This is a made-up example of what a response structure may look like.
 /// There is no restriction on what it can be. The runtime requires responses
 /// to be serialized into json. The runtime pays no attention
@@ -24,13 +22,13 @@ struct Response {
 async fn function_handler(event: LambdaEvent<ScheduledObservation>) -> Result<Response, Error> {
     let order = event.payload;
 
+    tracing::info!("order: {:?}", order);
+    tracing::info!("request_id: {}", event.context.request_id);
     // Prepare the response
     let resp = Response {
         req_id: event.context.request_id,
         msg: format!("order {:?}.", order),
     };
-
-    
 
     // Return `Response` (it will be serialized to JSON automatically by the runtime)
     Ok(resp)

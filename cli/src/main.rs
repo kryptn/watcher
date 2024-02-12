@@ -3,7 +3,8 @@ use serde_dynamo::{to_item, Item};
 
 use watcher::{
     repository::Repository,
-    types::{Broadcast, Endpoint, Observation, Sink, Subscription},
+    scheduling::{self, create_schedule},
+    types::{Broadcast, Endpoint, Observation, Sink, Subscription, WatcherItem},
 };
 
 use aws_sdk_dynamodb as dynamodb;
@@ -75,6 +76,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let repo = Repository::new(table_name.to_string(), client);
 
     match cli.command {
+        cli::Commands::Get { id } => {
+            let item: WatcherItem = repo.get_item(&id, &id).await?;
+            println!("{:?}", item);
+        }
         cli::Commands::Create(cmd) => {
             let cmd = cmd.command.unwrap();
             match cmd {
@@ -139,6 +144,34 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             for sub in subs {
                 println!("{:?}", sub);
             }
+        }
+        cli::Commands::CreateSchedule {
+            endpoint_id,
+            function_name,
+            region,
+            account_id,
+        } => {
+            let target_config = watcher::scheduling::TargetConfig {
+                function_name,
+                region,
+                account_id,
+            };
+            let client = scheduling::new().await;
+            let schedule_name = format!("schedule-{}", &endpoint_id.replace(":", "-"));
+            let input = watcher::types::ScheduledObservation {
+                endpoint_id: endpoint_id.clone(),
+            };
+
+            scheduling::create_schedule(&client, &schedule_name, target_config, &input).await?;
+            repo.set_schedule_name_for_endpoint(&endpoint_id, &schedule_name)
+                .await?;
+
+            println!("created schedule {}", schedule_name);
+        }
+        cli::Commands::DeleteSchedule { schedule_name } => {
+            let client = scheduling::new().await;
+            scheduling::delete_schedule(&client, &schedule_name).await?;
+            println!("deleted schedule {}", schedule_name);
         }
     }
 
