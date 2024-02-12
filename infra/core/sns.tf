@@ -14,4 +14,3 @@ output "observation_scheduled_topic_arn" {
 output "endpoint_observed_topic_arn" {
   value = aws_sns_topic.endpoint_observed_topic.arn
 }
-

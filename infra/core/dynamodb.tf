@@ -72,3 +72,7 @@ resource "aws_dynamodb_table" "watcher-table" {
 output "table_name" {
   value = aws_dynamodb_table.watcher-table.name
 }
+
+output "table_arn" {
+  value = aws_dynamodb_table.watcher-table.arn
+}
