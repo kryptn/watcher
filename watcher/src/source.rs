@@ -1,5 +1,3 @@
-
-
 pub trait Source {
     type Item;
 
