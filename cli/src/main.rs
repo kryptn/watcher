@@ -178,8 +178,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             if let Some(schedule_name) = endpoint.schedule_name {
                 scheduling::delete_schedule(&client, &schedule_name).await?;
                 println!("deleted schedule {}", schedule_name);
-                repo.remove::<Endpoint>(&endpoint_id, &endpoint_id, &["schedule_name"]).await?;
-
+                repo.remove::<Endpoint>(&endpoint_id, &endpoint_id, &["schedule_name"])
+                    .await?;
             }
         }
     }

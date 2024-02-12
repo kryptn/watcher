@@ -241,7 +241,8 @@ impl Repository {
     where
         T: Into<WatcherItem>,
     {
-    let result = self.client
+        let result = self
+            .client
             .update_item()
             .table_name(self.table_name.clone())
             .key("PK", to_attribute_value(pk)?)
@@ -250,8 +251,6 @@ impl Repository {
             .return_values(types::ReturnValue::UpdatedOld)
             .send()
             .await?;
-
-        
 
         Ok(())
     }
