@@ -170,10 +170,17 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
             println!("created schedule {}", schedule_name);
         }
-        cli::Commands::DeleteSchedule { schedule_name } => {
+        cli::Commands::DeleteSchedule { endpoint_id } => {
             let client = scheduling::new().await;
-            scheduling::delete_schedule(&client, &schedule_name).await?;
-            println!("deleted schedule {}", schedule_name);
+
+            let endpoint: Endpoint = repo.get_item(&endpoint_id, &endpoint_id).await?;
+
+            if let Some(schedule_name) = endpoint.schedule_name {
+                scheduling::delete_schedule(&client, &schedule_name).await?;
+                println!("deleted schedule {}", schedule_name);
+                repo.remove::<Endpoint>(&endpoint_id, &endpoint_id, &["schedule_name"]).await?;
+
+            }
         }
     }
 

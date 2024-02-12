@@ -231,4 +231,28 @@ impl Repository {
 
         Ok(())
     }
+
+    pub async fn remove<T>(
+        &self,
+        pk: &str,
+        sk: &str,
+        fields: &[&str],
+    ) -> Result<(), Box<dyn std::error::Error>>
+    where
+        T: Into<WatcherItem>,
+    {
+    let result = self.client
+            .update_item()
+            .table_name(self.table_name.clone())
+            .key("PK", to_attribute_value(pk)?)
+            .key("SK", to_attribute_value(sk)?)
+            .update_expression(format!("REMOVE {}", fields.join(", ")))
+            .return_values(types::ReturnValue::UpdatedOld)
+            .send()
+            .await?;
+
+        
+
+        Ok(())
+    }
 }

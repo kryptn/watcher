@@ -43,7 +43,7 @@ pub enum Commands {
         role_arn: String,
     },
     DeleteSchedule {
-        schedule_name: String,
+        endpoint_id: String,
     },
 }
 
