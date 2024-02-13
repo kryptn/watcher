@@ -1,18 +1,29 @@
-pub trait Source {
-    type Item;
+use serde::{de::DeserializeOwned, Deserialize, Serialize};
 
-    fn fetch(&self) -> Result<(), Box<dyn std::error::Error>>;
+pub trait Source<'a> {
+    type Item;
+    type Metadata: Serialize + Deserialize<'a>;
+
+    async fn fetch(&self, metadata: &Self::Metadata) -> Result<(), Box<dyn std::error::Error>>;
 }
 
-pub struct Rss {
+#[derive(Serialize, Deserialize)]
+pub struct RssMetadata {
     url: String,
 }
 
-impl Source for Rss {
-    type Item = String;
+pub struct Rss {
+    client: reqwest::Client,
+}
 
-    fn fetch(&self) -> Result<(), Box<dyn std::error::Error>> {
-        println!("fetching rss from {}", self.url);
+impl Source<'_> for Rss {
+    type Item = String;
+    type Metadata = RssMetadata;
+
+    async fn fetch(&self, metadata: &Self::Metadata) -> Result<(), Box<dyn std::error::Error>> {
+        let response = self.client.get(&metadata.url).send().await?;
+
+        println!("fetching rss from {}", metadata.url);
         Ok(())
     }
 }

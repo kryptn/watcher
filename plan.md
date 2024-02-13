@@ -70,6 +70,11 @@ broadcast:
 - sent_to
 
 
+
+
+
+
+
 add endpoint:
 create (Endpoint:id | Endpoint:id)
 send SNS:EndpointUpdated
