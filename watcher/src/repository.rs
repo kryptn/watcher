@@ -1,7 +1,7 @@
 use aws_sdk_dynamodb::types;
 use serde_dynamo::{to_attribute_value, to_item, Item};
 
-use crate::types::{Edge, Endpoint, Node, Sink, Subscription, WatcherItem};
+use crate::types::{Edge, Node, Sink, Source, Subscription, WatcherItem};
 
 pub struct Repository {
     table_name: String,
@@ -166,7 +166,7 @@ impl Repository {
 
     pub async fn create_endpoint(
         &self,
-        endpoint: &Endpoint,
+        endpoint: &Source,
     ) -> Result<(), Box<dyn std::error::Error>> {
         let node: Node = endpoint.clone().into();
         self.put_item(node).await?;
@@ -190,14 +190,14 @@ impl Repository {
 
     pub async fn get_sinks_for_endpoint(
         &self,
-        endpoint_id: String,
+        source_id: String,
     ) -> Result<Vec<Subscription>, Box<dyn std::error::Error>> {
         let response = self
             .client
             .query()
             .table_name(self.table_name.clone())
             .key_condition_expression("PK = :pk and begins_with(SK, :sink)")
-            .expression_attribute_values(":pk", to_attribute_value(endpoint_id)?)
+            .expression_attribute_values(":pk", to_attribute_value(source_id)?)
             .expression_attribute_values(":sink", to_attribute_value("Sink")?)
             .send()
             .await?;
@@ -216,14 +216,14 @@ impl Repository {
 
     pub async fn set_schedule_name_for_endpoint(
         &self,
-        endpoint_id: &str,
+        source_id: &str,
         schedule_name: &str,
     ) -> Result<(), Box<dyn std::error::Error>> {
         self.client
             .update_item()
             .table_name(self.table_name.clone())
-            .key("PK", to_attribute_value(endpoint_id)?)
-            .key("SK", to_attribute_value(endpoint_id)?)
+            .key("PK", to_attribute_value(source_id)?)
+            .key("SK", to_attribute_value(source_id)?)
             .update_expression("SET schedule_name = :schedule_name")
             .expression_attribute_values(":schedule_name", to_attribute_value(schedule_name)?)
             .send()

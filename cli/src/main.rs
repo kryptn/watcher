@@ -6,7 +6,7 @@ use serde_dynamo::{to_item, Item};
 use watcher::{
     repository::Repository,
     scheduling::{self, create_schedule},
-    types::{Broadcast, Endpoint, Observation, Sink, Subscription, WatcherItem},
+    types::{Broadcast, Observation, Sink, Source, Subscription, WatcherItem},
 };
 
 use aws_sdk_dynamodb as dynamodb;
@@ -19,9 +19,9 @@ fn create_example_data(
     endpoints: u32,
     sinks: u32,
     conn_pct: u32,
-) -> (Vec<Endpoint>, Vec<Sink>, Vec<Subscription>) {
+) -> (Vec<Source>, Vec<Sink>, Vec<Subscription>) {
     let sinks = (0..sinks).map(|_| Sink::mock()).collect::<Vec<_>>();
-    let endpoints = (0..endpoints).map(|_| Endpoint::mock()).collect::<Vec<_>>();
+    let endpoints = (0..endpoints).map(|_| Source::mock()).collect::<Vec<_>>();
     let subscriptions = sinks
         .iter()
         .map(|sink| {
@@ -94,17 +94,14 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         cli::Commands::Create(cmd) => {
             let cmd = cmd.command.unwrap();
             match cmd {
-                cli::CreateCommands::Endpoint { name } => {
+                cli::CreateCommands::Source { name } => {
                     println!("create endpoint -> {}", name);
                 }
                 cli::CreateCommands::Sink { name } => {
                     println!("create sink -> {}", name);
                 }
-                cli::CreateCommands::Subscription {
-                    endpoint_id,
-                    sink_id,
-                } => {
-                    println!("create subscription -> {}, {}", endpoint_id, sink_id);
+                cli::CreateCommands::Subscription { source_id, sink_id } => {
+                    println!("create subscription -> {}, {}", source_id, sink_id);
                 }
                 cli::CreateCommands::Table {} => {
                     println!("create table");
@@ -115,17 +112,14 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         cli::Commands::Delete(cmd) => {
             let cmd = cmd.command.unwrap();
             match cmd {
-                cli::DeleteCommands::Endpoint { id } => {
+                cli::DeleteCommands::Source { id } => {
                     println!("delete endpoint -> {}", id);
                 }
                 cli::DeleteCommands::Sink { id } => {
                     println!("delete sink -> {}", id);
                 }
-                cli::DeleteCommands::Subscription {
-                    endpoint_id,
-                    sink_id,
-                } => {
-                    println!("delete subscription -> {}, {}", endpoint_id, sink_id);
+                cli::DeleteCommands::Subscription { source_id, sink_id } => {
+                    println!("delete subscription -> {}, {}", source_id, sink_id);
                 }
                 cli::DeleteCommands::Table {} => {
                     println!("delete table");
@@ -150,14 +144,14 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 repo.create_subscription(subscription).await?;
             }
         }
-        cli::Commands::GetSinksForEndpoint { endpoint_id } => {
-            let subs = repo.get_sinks_for_endpoint(endpoint_id).await?;
+        cli::Commands::GetSinksForSource { source_id } => {
+            let subs = repo.get_sinks_for_endpoint(source_id).await?;
             for sub in subs {
                 println!("{:?}", sub);
             }
         }
         cli::Commands::CreateSchedule {
-            endpoint_id,
+            source_id,
             function_name,
             region,
             account_id,
@@ -170,26 +164,26 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 role_arn,
             };
             let client = scheduling::new().await;
-            let schedule_name = format!("schedule-{}", &endpoint_id.replace(":", "-"));
+            let schedule_name = format!("schedule-{}", &source_id.replace(":", "-"));
             let input = watcher::types::ScheduledObservation {
-                endpoint_id: endpoint_id.clone(),
+                source_id: source_id.clone(),
             };
 
             scheduling::create_schedule(&client, &schedule_name, target_config, &input).await?;
-            repo.set_schedule_name_for_endpoint(&endpoint_id, &schedule_name)
+            repo.set_schedule_name_for_endpoint(&source_id, &schedule_name)
                 .await?;
 
             println!("created schedule {}", schedule_name);
         }
-        cli::Commands::DeleteSchedule { endpoint_id } => {
+        cli::Commands::DeleteSchedule { source_id } => {
             let client = scheduling::new().await;
 
-            let endpoint: Endpoint = repo.get_item(&endpoint_id, &endpoint_id).await?;
+            let endpoint: Source = repo.get_item(&source_id, &source_id).await?;
 
             if let Some(schedule_name) = endpoint.schedule_name {
                 scheduling::delete_schedule(&client, &schedule_name).await?;
                 println!("deleted schedule {}", schedule_name);
-                repo.remove::<Endpoint>(&endpoint_id, &endpoint_id, &["schedule_name"])
+                repo.remove::<Source>(&source_id, &source_id, &["schedule_name"])
                     .await?;
             }
         }

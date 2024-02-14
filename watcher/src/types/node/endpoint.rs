@@ -7,17 +7,17 @@ use crate::types::WatcherItem;
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[cfg_attr(any(test, feature = "fake"), derive(PartialEq, Dummy))]
-pub struct Endpoint {
+pub struct Source {
     #[serde(rename = "PK")]
     pub id: String,
     #[serde(rename = "SK")]
     pub _sk: String,
 
     pub name: String,
-    // endpoint_type: EndpointType,
+    // endpoint_type: SourceType,
     // endpoint_data: Value,
     #[serde(flatten)]
-    pub endpoint: EndpointType,
+    pub endpoint: SourceType,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     pub rate: Option<String>,
@@ -25,11 +25,11 @@ pub struct Endpoint {
     pub schedule_name: Option<String>,
 }
 
-impl Endpoint {
+impl Source {
     pub fn new(
         id: String,
         name: String,
-        endpoint: EndpointType,
+        endpoint: SourceType,
         rate: Option<String>,
         schedule_name: Option<String>,
     ) -> Self {
@@ -50,16 +50,16 @@ impl Endpoint {
 
     #[cfg(any(test, feature = "fake"))]
     pub fn mock() -> Self {
-        let id = format!("Endpoint:{}", 20.fake::<String>());
+        let id = format!("Source:{}", 20.fake::<String>());
 
-        let mut fake: Endpoint = Faker.fake();
+        let mut fake: Source = Faker.fake();
         fake.id = id.clone();
         fake._sk = id;
         fake
     }
 }
 
-impl Into<WatcherItem> for Endpoint {
+impl Into<WatcherItem> for Source {
     fn into(self) -> WatcherItem {
         WatcherItem::Node(self.into())
     }
@@ -90,7 +90,7 @@ pub struct Http {
     tag = "endpoint_type",
     content = "endpoint_data"
 )]
-pub enum EndpointType {
+pub enum SourceType {
     Rss(Rss),
     Http(Http),
 }
@@ -102,11 +102,11 @@ mod test {
 
     #[test]
     fn test_endpoint_serialization() {
-        let endpoint = Endpoint {
+        let endpoint = Source {
             id: "id".to_string(),
             _sk: "sk".to_string(),
             name: "name".to_string(),
-            endpoint: EndpointType::Rss(Rss {
+            endpoint: SourceType::Rss(Rss {
                 url: "url".to_string(),
             }),
             rate: Some("rate".to_string()),
@@ -143,24 +143,24 @@ mod test {
             "schedule_name": "schedule_name"
         });
 
-        let expected = Endpoint {
+        let expected = Source {
             id: "id".to_string(),
             _sk: "sk".to_string(),
             name: "name".to_string(),
-            endpoint: EndpointType::Rss(Rss {
+            endpoint: SourceType::Rss(Rss {
                 url: "url".to_string(),
             }),
             rate: Some("rate".to_string()),
             schedule_name: Some("schedule_name".to_string()),
         };
 
-        let deserialized = serde_json::from_value::<Endpoint>(json).unwrap();
+        let deserialized = serde_json::from_value::<Source>(json).unwrap();
         assert_eq!(deserialized, expected);
     }
 
     #[test]
     fn test_endpoint_fake() {
-        let endpoint = Endpoint::mock();
+        let endpoint = Source::mock();
         println!("{:#?}", endpoint);
         assert_eq!(endpoint.id, endpoint._sk);
     }

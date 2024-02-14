@@ -3,21 +3,21 @@ use serde::{Deserialize, Serialize};
 #[cfg(any(test, feature = "fake"))]
 use fake::{Dummy, Fake, Faker};
 
-use crate::types::{Endpoint, Observation, WatcherItem};
+use crate::types::{Observation, Source, WatcherItem};
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[cfg_attr(any(test, feature = "fake"), derive(PartialEq, Dummy))]
 pub struct Measurement {
     #[serde(rename = "PK")]
-    pub endpoint_id: String,
+    pub source_id: String,
     #[serde(rename = "SK")]
     pub observation_id: String,
 }
 
-impl From<(&Endpoint, &Observation)> for Measurement {
-    fn from((endpoint, observation): (&Endpoint, &Observation)) -> Self {
+impl From<(&Source, &Observation)> for Measurement {
+    fn from((endpoint, observation): (&Source, &Observation)) -> Self {
         Measurement {
-            endpoint_id: endpoint.id.clone(),
+            source_id: endpoint.id.clone(),
             observation_id: observation.id.clone(),
         }
     }
@@ -46,12 +46,12 @@ mod test {
     #[test]
     fn test_measurement_serialization() {
         let measurement = Measurement {
-            endpoint_id: "endpoint_id".to_string(),
+            source_id: "source_id".to_string(),
             observation_id: "observation_id".to_string(),
         };
 
         let expected = json!({
-            "PK": "endpoint_id",
+            "PK": "source_id",
             "SK": "observation_id",
         });
 
@@ -62,12 +62,12 @@ mod test {
     #[test]
     fn test_measurement_deserialization() {
         let expected = Measurement {
-            endpoint_id: "endpoint_id".to_string(),
+            source_id: "source_id".to_string(),
             observation_id: "observation_id".to_string(),
         };
 
         let deserialized: Measurement = serde_json::from_value(json!({
-            "PK": "endpoint_id",
+            "PK": "source_id",
             "SK": "observation_id",
         }))
         .unwrap();
@@ -76,16 +76,16 @@ mod test {
 
     #[test]
     fn test_measurement_from_endpoint_observation() {
-        let endpoint_id = "Endpoint:TestId".to_string();
+        let source_id = "Source:TestId".to_string();
         let observation_id = "Observation:TestId".to_string();
 
-        let mut endpoint = Faker.fake::<Endpoint>();
-        endpoint.id = endpoint_id.clone();
+        let mut endpoint = Faker.fake::<Source>();
+        endpoint.id = source_id.clone();
         let mut observation = Faker.fake::<Observation>();
         observation.id = observation_id.clone();
 
         let expected = Measurement {
-            endpoint_id,
+            source_id,
             observation_id,
         };
 

@@ -6,7 +6,7 @@ use tracing_subscriber::filter::{EnvFilter, LevelFilter};
 use serde::{Deserialize, Serialize};
 use watcher::{
     repository::Repository,
-    types::{Endpoint, ScheduledObservation},
+    types::{ScheduledObservation, Source},
 };
 
 /// This is a made-up example of what a response structure may look like.
@@ -39,9 +39,7 @@ async fn function_handler(
     let table_name = env::var("TABLE_NAME").expect("TABLE_NAME must be set");
     let repo = make_repo(&table_name).await?;
 
-    let endpoint: Endpoint = repo
-        .get_item(&order.endpoint_id, &order.endpoint_id)
-        .await?;
+    let endpoint: Source = repo.get_item(&order.source_id, &order.source_id).await?;
 
     tracing::info!("order: {:?}", order);
     tracing::info!("request_id: {}", event.context.request_id);

@@ -38,7 +38,7 @@ mod test {
 
     #[test]
     fn test_item_from_chain() {
-        let endpoint: Endpoint = Faker.fake();
+        let endpoint: Source = Faker.fake();
         let item: WatcherItem = endpoint.to_watcher_item();
         let serialized = serde_json::to_string(&item).unwrap();
         let dynamodb_serialized: Item = to_item(item.clone()).expect("pass");

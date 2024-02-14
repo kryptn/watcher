@@ -31,19 +31,19 @@ pub enum Commands {
         connectivity: u32,
     },
 
-    GetSinksForEndpoint {
-        endpoint_id: String,
+    GetSinksForSource {
+        source_id: String,
     },
 
     CreateSchedule {
-        endpoint_id: String,
+        source_id: String,
         function_name: String,
         region: String,
         account_id: String,
         role_arn: String,
     },
     DeleteSchedule {
-        endpoint_id: String,
+        source_id: String,
     },
 }
 
@@ -57,7 +57,7 @@ pub struct CreateArgs {
 #[derive(Debug, Subcommand)]
 pub enum CreateCommands {
     #[command(arg_required_else_help = true)]
-    Endpoint {
+    Source {
         #[arg(required = true)]
         name: String,
     },
@@ -69,7 +69,7 @@ pub enum CreateCommands {
 
     Subscription {
         #[arg(required = true)]
-        endpoint_id: String,
+        source_id: String,
         sink_id: String,
     },
 
@@ -86,7 +86,7 @@ pub struct DeleteArgs {
 #[derive(Debug, Subcommand)]
 pub enum DeleteCommands {
     #[command(arg_required_else_help = true)]
-    Endpoint {
+    Source {
         #[arg(required = true)]
         id: String,
     },
@@ -98,7 +98,7 @@ pub enum DeleteCommands {
 
     Subscription {
         #[arg(required = true)]
-        endpoint_id: String,
+        source_id: String,
         sink_id: String,
     },
 

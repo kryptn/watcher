@@ -16,15 +16,15 @@ pub use broadcast::*;
 #[cfg_attr(test, derive(PartialEq))]
 #[serde(rename_all = "snake_case", tag = "node_type")]
 pub enum Node {
-    Endpoint(Endpoint),
+    Source(Source),
     Observation(Observation),
     Sink(Sink),
     Broadcast(Broadcast),
 }
 
-impl From<Endpoint> for Node {
-    fn from(endpoint: Endpoint) -> Self {
-        Node::Endpoint(endpoint)
+impl From<Source> for Node {
+    fn from(endpoint: Source) -> Self {
+        Node::Source(endpoint)
     }
 }
 

@@ -9,7 +9,7 @@ use crate::types::WatcherItem;
 #[cfg_attr(any(test, feature = "fake"), derive(PartialEq, Dummy))]
 pub struct Subscription {
     #[serde(rename = "PK")]
-    pub endpoint_id: String,
+    pub source_id: String,
     #[serde(rename = "SK")]
     pub sink_id: String,
 
@@ -19,10 +19,10 @@ pub struct Subscription {
 }
 
 impl Subscription {
-    pub fn new(endpoint_id: String, sink_id: String) -> Self {
+    pub fn new(source_id: String, sink_id: String) -> Self {
         let created_at = chrono::Utc::now();
         Self {
-            endpoint_id,
+            source_id,
             sink_id,
             created_at,
         }
@@ -50,13 +50,13 @@ mod test {
         let now = chrono::Utc::now();
 
         let subscription = Subscription {
-            endpoint_id: "endpoint_id".to_string(),
+            source_id: "source_id".to_string(),
             sink_id: "sink_id".to_string(),
             created_at: now,
         };
 
         let expected = json!({
-            "PK": "endpoint_id",
+            "PK": "source_id",
             "SK": "sink_id",
             "created_at": now,
         });
@@ -70,13 +70,13 @@ mod test {
         let now = chrono::Utc::now();
 
         let expected = Subscription {
-            endpoint_id: "endpoint_id".to_string(),
+            source_id: "source_id".to_string(),
             sink_id: "sink_id".to_string(),
             created_at: now,
         };
 
         let deserialized: Subscription = serde_json::from_value(json!({
-            "PK": "endpoint_id",
+            "PK": "source_id",
             "SK": "sink_id",
             "created_at": now,
         }))

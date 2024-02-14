@@ -3,21 +3,21 @@ use serde::{Deserialize, Serialize};
 #[cfg(any(test, feature = "fake"))]
 use fake::{Dummy, Fake, Faker};
 
-use crate::types::{Broadcast, Endpoint, WatcherItem};
+use crate::types::{Broadcast, Source, WatcherItem};
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[cfg_attr(any(test, feature = "fake"), derive(PartialEq, Dummy))]
 pub struct Emission {
     #[serde(rename = "PK")]
-    pub endpoint_id: String,
+    pub source_id: String,
     #[serde(rename = "SK")]
     pub broadcast_id: String,
 }
 
-impl From<(&Endpoint, &Broadcast)> for Emission {
-    fn from((endpoint, broadcast): (&Endpoint, &Broadcast)) -> Self {
+impl From<(&Source, &Broadcast)> for Emission {
+    fn from((endpoint, broadcast): (&Source, &Broadcast)) -> Self {
         Emission {
-            endpoint_id: endpoint.id.clone(),
+            source_id: endpoint.id.clone(),
             broadcast_id: broadcast.id.clone(),
         }
     }
@@ -46,12 +46,12 @@ mod test {
     #[test]
     fn test_emission_serialization() {
         let emission = Emission {
-            endpoint_id: "endpoint_id".to_string(),
+            source_id: "source_id".to_string(),
             broadcast_id: "broadcast_id".to_string(),
         };
 
         let expected = json!({
-            "PK": "endpoint_id",
+            "PK": "source_id",
             "SK": "broadcast_id",
         });
 
@@ -62,12 +62,12 @@ mod test {
     #[test]
     fn test_emission_deserialization() {
         let expected = Emission {
-            endpoint_id: "endpoint_id".to_string(),
+            source_id: "source_id".to_string(),
             broadcast_id: "broadcast_id".to_string(),
         };
 
         let deserialized: Emission = serde_json::from_value(json!({
-            "PK": "endpoint_id",
+            "PK": "source_id",
             "SK": "broadcast_id",
         }))
         .unwrap();
@@ -76,16 +76,16 @@ mod test {
 
     #[test]
     fn test_emission_from() {
-        let endpoint_id = "Endpoint:TestId".to_string();
+        let source_id = "Source:TestId".to_string();
         let broadcast_id = "Broadcast:TestId".to_string();
 
-        let mut endpoint = Faker.fake::<Endpoint>();
-        endpoint.id = endpoint_id.clone();
+        let mut endpoint = Faker.fake::<Source>();
+        endpoint.id = source_id.clone();
         let mut broadcast = Faker.fake::<Broadcast>();
         broadcast.id = broadcast_id.clone();
 
         let expected = Emission {
-            endpoint_id,
+            source_id,
             broadcast_id,
         };
 

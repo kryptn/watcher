@@ -10,7 +10,7 @@ where
     pub response: R,
     pub items: Vec<T>,
 }
-
+#[allow(async_fn_in_trait)]
 pub trait Source<'a, T>
 where
     T: Serialize + Deserialize<'a>,
@@ -32,8 +32,6 @@ where
         self.store(&key, &response).await?;
         Ok(response)
     }
-
-
 }
 
 #[derive(Serialize, Deserialize)]
@@ -46,30 +44,30 @@ pub struct Rss {
     s3: aws_sdk_s3::Client,
 }
 
-pub struct FeedItem {}
+// pub struct FeedItem {}
 
-impl<'a,T> Source<'a, T> for Rss where T: Serialize + Deserialize<'a>, SdkBody: From<T>{
-    type Item = String;
-    type Metadata = RssMetadata;
+// impl<'a,T> Source<'a, T> for Rss where T: Serialize + Deserialize<'a>, SdkBody: From<T>{
+//     type Item = String;
+//     type Metadata = RssMetadata;
 
-    async fn fetch(&self, metadata: &RssMetadata) -> Result<T, Box<dyn std::error::Error>> {
-        let response = self.client.get(&metadata.url).send().await?;
-        let body = response.text().await?;
-        Ok(body)
-    }
+//     async fn fetch(&self, metadata: &RssMetadata) -> Result<T, Box<dyn std::error::Error>> {
+//         let response = self.client.get(&metadata.url).send().await?;
+//         let body = response.text().await?;
+//         Ok(body)
+//     }
 
-    async fn store(&self, key: &str, body: &T) -> Result<(), Box<dyn std::error::Error>> {
-        let stream = ByteStream::new(SdkBody::from(body));
-        self.s3
-            .put_object()
-            .bucket("bucket")
-            .key(key)
-            .body(stream)
-            .send()
-            .await?;
-        Ok(())
-    }
-}
+//     async fn store(&self, key: &str, body: &T) -> Result<(), Box<dyn std::error::Error>> {
+//         let stream = ByteStream::new(SdkBody::from(body));
+//         self.s3
+//             .put_object()
+//             .bucket("bucket")
+//             .key(key)
+//             .body(stream)
+//             .send()
+//             .await?;
+//         Ok(())
+//     }
+// }
 
 // async fn get_source_state<'a>(source: impl Source<'a>) -> Result<(), Box<dyn std::error::Error>> {
 
