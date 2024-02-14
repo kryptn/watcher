@@ -6,7 +6,7 @@ use serde_dynamo::{to_item, Item};
 use watcher::{
     repository::Repository,
     scheduling::{self, create_schedule},
-    types::{Broadcast, Observation, Sink, Source, Subscription, WatcherItem},
+    types::{Broadcast, Sink, Source, State, Subscription, WatcherItem},
 };
 
 use aws_sdk_dynamodb as dynamodb;
@@ -165,7 +165,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             };
             let client = scheduling::new().await;
             let schedule_name = format!("schedule-{}", &source_id.replace(":", "-"));
-            let input = watcher::types::ScheduledObservation {
+            let input = watcher::types::ScheduledState {
                 source_id: source_id.clone(),
             };
 

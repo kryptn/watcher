@@ -1,7 +1,7 @@
 use aws_sdk_scheduler as scheduler;
 use aws_sdk_scheduler::types;
 
-use crate::types::ScheduledObservation;
+use crate::types::ScheduledState;
 
 pub async fn new() -> scheduler::Client {
     let config = aws_config::load_from_env().await;
@@ -28,7 +28,7 @@ pub async fn create_schedule(
     client: &scheduler::Client,
     schedule_name: &str,
     target_config: TargetConfig,
-    target_input: &ScheduledObservation,
+    target_input: &ScheduledState,
 ) -> Result<(), Box<dyn std::error::Error>> {
     let input = serde_json::json! {
         {

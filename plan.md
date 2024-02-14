@@ -6,11 +6,11 @@ Broadcast:id   | Broadcast:id || created_at | contents
 
 
 
-(:Source)-MEASURED->(:Observation)
-Source:id    | Observation:Timestamp || contents
+(:Source)-MEASURED->(:State)
+Source:id    | State:Timestamp || contents
 
-(:Observation)-OF->(:Source)
-Observation:id | Source:id           || created_at | contents
+(:State)-OF->(:Source)
+State:id | Source:id           || created_at | contents
 
 (:Source)-SUBSCRIBER->(:Sink)
 Source:id    | Sink:id               || created_at
@@ -111,11 +111,11 @@ delete: (Source:id | Sink:id )
 
 add endpoint observation
 write: s3://some-bucket/endpoint-type-endpoint-id/observation-timstamp
-create: (Observation:Timestamp | Observation:Timestamp | s3_key | ttl?)
-create: (Source:id | Observation:Timestamp)
-update: (Observation:#Latest -> Observation:#Previous)
-create: (Observation:Timestamp | Observation:#Latest)
-send: SNS:SourceObserved (Observation:Id)
+create: (State:Timestamp | State:Timestamp | s3_key | ttl?)
+create: (Source:id | State:Timestamp)
+update: (State:#Latest -> State:#Previous)
+create: (State:Timestamp | State:#Latest)
+send: SNS:SourceObserved (State:Id)
 
 
 

@@ -1,10 +1,10 @@
 use serde::{self, Deserialize, Serialize};
 
-pub mod endpoint;
-pub use endpoint::*;
+pub mod source;
+pub use source::*;
 
-pub mod observation;
-pub use observation::*;
+pub mod state;
+pub use state::*;
 
 pub mod sink;
 pub use sink::*;
@@ -17,7 +17,7 @@ pub use broadcast::*;
 #[serde(rename_all = "snake_case", tag = "node_type")]
 pub enum Node {
     Source(Source),
-    Observation(Observation),
+    State(State),
     Sink(Sink),
     Broadcast(Broadcast),
 }
@@ -28,9 +28,9 @@ impl From<Source> for Node {
     }
 }
 
-impl From<Observation> for Node {
-    fn from(observation: Observation) -> Self {
-        Node::Observation(observation)
+impl From<State> for Node {
+    fn from(observation: State) -> Self {
+        Node::State(observation)
     }
 }
 

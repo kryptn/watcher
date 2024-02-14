@@ -6,7 +6,7 @@ use tracing_subscriber::filter::{EnvFilter, LevelFilter};
 use serde::{Deserialize, Serialize};
 use watcher::{
     repository::Repository,
-    types::{ScheduledObservation, Source},
+    types::{ScheduledState, Source},
 };
 
 /// This is a made-up example of what a response structure may look like.
@@ -33,7 +33,7 @@ async fn make_repo(table_name: &str) -> Result<Repository, Box<dyn std::error::E
 /// - https://github.com/awslabs/aws-lambda-rust-runtime/tree/main/examples
 /// - https://github.com/aws-samples/serverless-rust-demo/
 async fn function_handler(
-    event: LambdaEvent<ScheduledObservation>,
+    event: LambdaEvent<ScheduledState>,
 ) -> Result<Response, Box<dyn std::error::Error>> {
     let order = event.payload;
     let table_name = env::var("TABLE_NAME").expect("TABLE_NAME must be set");

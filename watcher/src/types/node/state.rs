@@ -7,7 +7,7 @@ use crate::types::WatcherItem;
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[cfg_attr(any(test, feature = "fake"), derive(PartialEq, Dummy))]
-pub struct Observation {
+pub struct State {
     #[serde(rename = "PK")]
     pub id: String,
     #[serde(rename = "SK")]
@@ -21,7 +21,7 @@ pub struct Observation {
     ttl: Option<u64>,
 }
 
-impl Observation {
+impl State {
     pub fn to_watcher_item(self) -> WatcherItem {
         let node = self.into();
         WatcherItem::Node(node)
@@ -29,16 +29,16 @@ impl Observation {
 
     #[cfg(any(test, feature = "fake"))]
     pub fn mock() -> Self {
-        let id = format!("Observation:{}", 20.fake::<String>());
+        let id = format!("State:{}", 20.fake::<String>());
 
-        let mut fake: Observation = Faker.fake();
+        let mut fake: State = Faker.fake();
         fake.id = id.clone();
         fake._sk = id;
         fake
     }
 }
 
-impl Into<WatcherItem> for Observation {
+impl Into<WatcherItem> for State {
     fn into(self) -> WatcherItem {
         WatcherItem::Node(self.into())
     }
@@ -53,7 +53,7 @@ mod test {
     fn test_observation_serialization() {
         let now = chrono::Utc::now();
 
-        let observation = Observation {
+        let observation = State {
             id: "id".to_string(),
             _sk: "sk".to_string(),
             created_at: now,
@@ -95,7 +95,7 @@ mod test {
             "ttl": 60
         });
 
-        let expected = Observation {
+        let expected = State {
             id: "id".to_string(),
             _sk: "sk".to_string(),
             created_at: now,
@@ -105,7 +105,7 @@ mod test {
             ttl: Some(60),
         };
 
-        let deserialized: Observation = serde_json::from_value(json).unwrap();
+        let deserialized: State = serde_json::from_value(json).unwrap();
         assert_eq!(deserialized, expected);
     }
 }
