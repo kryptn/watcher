@@ -2,7 +2,7 @@
 
 Source:id    | Source:id  || created_at | endpoint_type | rate
 Sink:id        | Sink:id      || created_at | sink_type | sink_data
-Broadcast:id   | Broadcast:id || created_at | contents
+Signal:id   | Signal:id || created_at | contents
 
 
 
@@ -15,11 +15,11 @@ State:id | Source:id           || created_at | contents
 (:Source)-SUBSCRIBER->(:Sink)
 Source:id    | Sink:id               || created_at
 
-(:Source)-SENT->(:Broadcast)
-Source:id    | Broadcast:id          || created_at
+(:Source)-SENT->(:Signal)
+Source:id    | Signal:id          || created_at
 
-(:Broadcast)-SENT_TO->(:Source)
-Broadcast:id   | Sink:id               || created_at | result
+(:Signal)-SENT_TO->(:Source)
+Signal:id   | Sink:id               || created_at | result
 
 
 
@@ -98,9 +98,9 @@ update (Source:id | Source:id) with schedule_name
 attach sink to endpoint
 create: Source:id | Sink:id
 if send_last_broadcast:
-    query (Source:id | Broadcast:#Latest )
-    create (Sink:id | Broadcast:id)
-    send: SNS:Broadcast
+    query (Source:id | Signal:#Latest )
+    create (Sink:id | Signal:id)
+    send: SNS:Signal
 
 
 
@@ -128,15 +128,15 @@ if diff:
 
 
 add sink broadcast
-create: (Broadcast:id | Broadcast:id)
+create: (Signal:id | Signal:id)
 query (Source:id | Sink:id)
-    create: (Sink:id | Broadcast:id)
-    send: SNS:Broadcast
+    create: (Sink:id | Signal:id)
+    send: SNS:Signal
 
 
 
-SNS:Broadcast
-query (Broadcast:id)
+SNS:Signal
+query (Signal:id)
 get broadcast
 get sink
 transform broadcast for sink

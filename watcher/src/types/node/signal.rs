@@ -7,7 +7,7 @@ use crate::types::WatcherItem;
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[cfg_attr(any(test, feature = "fake"), derive(PartialEq, Dummy))]
-pub struct Broadcast {
+pub struct Signal {
     #[serde(rename = "PK")]
     pub id: String,
     #[serde(rename = "SK")]
@@ -20,12 +20,12 @@ pub struct Broadcast {
     ttl: Option<u64>,
 }
 
-impl Broadcast {
+impl Signal {
     #[cfg(any(test, feature = "fake"))]
     pub fn mock() -> Self {
-        let id = format!("Broadcast:{}", 20.fake::<String>());
+        let id = format!("Signal:{}", 20.fake::<String>());
 
-        let mut fake: Broadcast = Faker.fake();
+        let mut fake: Signal = Faker.fake();
         fake.id = id.clone();
         fake.sk = id;
         fake
@@ -37,7 +37,7 @@ impl Broadcast {
     }
 }
 
-impl Into<WatcherItem> for Broadcast {
+impl Into<WatcherItem> for Signal {
     fn into(self) -> WatcherItem {
         WatcherItem::Node(self.into())
     }
@@ -52,7 +52,7 @@ mod test {
     fn test_broadcast_serialization() {
         let now = chrono::Utc::now();
 
-        let broadcast = Broadcast {
+        let broadcast = Signal {
             id: "id".to_string(),
             sk: "sk".to_string(),
             created_at: now,
@@ -84,7 +84,7 @@ mod test {
             "ttl": 60
         });
 
-        let expected = Broadcast {
+        let expected = Signal {
             id: "id".to_string(),
             sk: "sk".to_string(),
             created_at: now,
@@ -92,7 +92,7 @@ mod test {
             ttl: Some(60),
         };
 
-        let deserialized: Broadcast = serde_json::from_value(json).unwrap();
+        let deserialized: Signal = serde_json::from_value(json).unwrap();
         assert_eq!(deserialized, expected);
     }
 }

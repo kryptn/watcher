@@ -9,8 +9,8 @@ pub use state::*;
 pub mod sink;
 pub use sink::*;
 
-pub mod broadcast;
-pub use broadcast::*;
+pub mod signal;
+pub use signal::*;
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[cfg_attr(test, derive(PartialEq))]
@@ -19,7 +19,7 @@ pub enum Node {
     Source(Source),
     State(State),
     Sink(Sink),
-    Broadcast(Broadcast),
+    Signal(Signal),
 }
 
 impl From<Source> for Node {
@@ -40,8 +40,8 @@ impl From<Sink> for Node {
     }
 }
 
-impl From<Broadcast> for Node {
-    fn from(broadcast: Broadcast) -> Self {
-        Node::Broadcast(broadcast)
+impl From<Signal> for Node {
+    fn from(broadcast: Signal) -> Self {
+        Node::Signal(broadcast)
     }
 }

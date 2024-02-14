@@ -6,7 +6,7 @@ use serde_dynamo::{to_item, Item};
 use watcher::{
     repository::Repository,
     scheduling::{self, create_schedule},
-    types::{Broadcast, Sink, Source, State, Subscription, WatcherItem},
+    types::{Signal, Sink, Source, State, Subscription, WatcherItem},
 };
 
 use aws_sdk_dynamodb as dynamodb;
