@@ -135,13 +135,13 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             let (endpoints, sinks, subscriptions) =
                 create_example_data(endpoint_count, sink_count, connectivity);
             for endpoint in endpoints.iter() {
-                repo.create_endpoint(endpoint).await?;
+                repo.put_item(endpoint).await?;
             }
             for sink in sinks.iter() {
-                repo.create_sink(sink).await?;
+                repo.put_item(sink).await?;
             }
             for subscription in subscriptions.iter() {
-                repo.create_subscription(subscription).await?;
+                repo.put_item(subscription).await?;
             }
         }
         cli::Commands::GetSinksForSource { source_id } => {

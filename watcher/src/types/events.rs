@@ -1,7 +1,5 @@
 use serde::{Deserialize, Serialize};
 
-use super::State;
-
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SourceSchedule {
     pub source_id: String,

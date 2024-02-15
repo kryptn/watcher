@@ -13,23 +13,21 @@ where
 #[allow(async_fn_in_trait)]
 pub trait Source<'a, T>
 where
-    T: Serialize + Deserialize<'a>,
+    T: Serialize + Deserialize<'a> + Clone,
 {
     type Item: Ord + PartialOrd + Eq + PartialEq + Serialize + Deserialize<'a>;
     type Metadata: Serialize + Deserialize<'a>;
 
     async fn fetch(&self, metadata: &Self::Metadata) -> Result<T, Box<dyn std::error::Error>>;
 
-    async fn store(&self, key: &str, body: &T) -> Result<(), Box<dyn std::error::Error>>;
+    async fn store(&self, key: &str, body: T) -> Result<(), Box<dyn std::error::Error>>;
 
-    // async fn get_latest(&self, metadata: &Self::Metadata) -> Result<T, Box<dyn std::error::Error>>;
-
-    async fn get_state(&self, metadata: &Self::Metadata) -> Result<T, Box<dyn std::error::Error>> {
+    async fn witness(&self, metadata: &Self::Metadata) -> Result<T, Box<dyn std::error::Error>> {
         let response = self.fetch(metadata).await?;
         let source_id = "";
         let now = chrono::Utc::now();
         let key = format!("source-{}/state/{}", source_id, now);
-        self.store(&key, &response).await?;
+        self.store(&key, response.clone()).await?;
         Ok(response)
     }
 }
@@ -44,33 +42,34 @@ pub struct Rss {
     s3: aws_sdk_s3::Client,
 }
 
-// pub struct FeedItem {}
+pub struct FeedItem {}
 
-// impl<'a,T> Source<'a, T> for Rss where T: Serialize + Deserialize<'a>, SdkBody: From<T>{
-//     type Item = String;
-//     type Metadata = RssMetadata;
+impl<'a, T> Source<'a, T> for Rss
+where
+    T: Serialize + Deserialize<'a> + Clone,
+    SdkBody: From<T>,
+{
+    type Item = String;
+    type Metadata = RssMetadata;
 
-//     async fn fetch(&self, metadata: &RssMetadata) -> Result<T, Box<dyn std::error::Error>> {
-//         let response = self.client.get(&metadata.url).send().await?;
-//         let body = response.text().await?;
-//         Ok(body)
-//     }
+    async fn fetch(&self, metadata: &RssMetadata) -> Result<T, Box<dyn std::error::Error>> {
+        let response = self.client.get(&metadata.url).send().await?;
+        let body = response.text().await?;
+        Ok(T::from(body))
+    }
 
-//     async fn store(&self, key: &str, body: &T) -> Result<(), Box<dyn std::error::Error>> {
-//         let stream = ByteStream::new(SdkBody::from(body));
-//         self.s3
-//             .put_object()
-//             .bucket("bucket")
-//             .key(key)
-//             .body(stream)
-//             .send()
-//             .await?;
-//         Ok(())
-//     }
-// }
-
-// async fn get_source_state<'a>(source: impl Source<'a>) -> Result<(), Box<dyn std::error::Error>> {
-
-//     let resp =
-
-// }
+    async fn store(&self, key: &str, body: T) -> Result<(), Box<dyn std::error::Error>>
+    where
+        T:,
+    {
+        let stream = ByteStream::new(SdkBody::from(body));
+        self.s3
+            .put_object()
+            .bucket("bucket")
+            .key(key)
+            .body(stream)
+            .send()
+            .await?;
+        Ok(())
+    }
+}

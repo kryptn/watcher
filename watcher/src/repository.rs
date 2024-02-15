@@ -1,5 +1,5 @@
 use aws_sdk_dynamodb::types;
-use serde_dynamo::{to_attribute_value, to_item, Item};
+use serde_dynamo::{to_attribute_value, Item};
 
 use crate::types::{Edge, Node, Sink, Source, Subscription, WatcherItem};
 
@@ -11,84 +11,6 @@ pub struct Repository {
 impl Repository {
     pub fn new(table_name: String, client: aws_sdk_dynamodb::Client) -> Self {
         Self { table_name, client }
-    }
-
-    pub async fn delete_table(&self) -> Result<(), Box<dyn std::error::Error>> {
-        self.client
-            .delete_table()
-            .table_name(self.table_name.clone())
-            .send()
-            .await?;
-
-        Ok(())
-    }
-
-    pub async fn create_table(&self) -> Result<(), Box<dyn std::error::Error>> {
-        self.client
-            .create_table()
-            .table_name(self.table_name.clone())
-            .attribute_definitions(
-                types::AttributeDefinition::builder()
-                    .attribute_name("PK")
-                    .attribute_type(types::ScalarAttributeType::S)
-                    .build()?,
-            )
-            .attribute_definitions(
-                types::AttributeDefinition::builder()
-                    .attribute_name("SK")
-                    .attribute_type(types::ScalarAttributeType::S)
-                    .build()?,
-            )
-            .key_schema(
-                types::KeySchemaElement::builder()
-                    .attribute_name("PK")
-                    .key_type(types::KeyType::Hash)
-                    .build()?,
-            )
-            .key_schema(
-                types::KeySchemaElement::builder()
-                    .attribute_name("SK")
-                    .key_type(types::KeyType::Range)
-                    .build()?,
-            )
-            .global_secondary_indexes(
-                types::GlobalSecondaryIndex::builder()
-                    .index_name("AdjacencyList")
-                    .projection(
-                        types::Projection::builder()
-                            .projection_type(types::ProjectionType::All)
-                            .build(),
-                    )
-                    .key_schema(
-                        types::KeySchemaElement::builder()
-                            .attribute_name("SK")
-                            .key_type(types::KeyType::Hash)
-                            .build()?,
-                    )
-                    .key_schema(
-                        types::KeySchemaElement::builder()
-                            .attribute_name("PK")
-                            .key_type(types::KeyType::Range)
-                            .build()?,
-                    )
-                    .provisioned_throughput(
-                        types::ProvisionedThroughput::builder()
-                            .read_capacity_units(60)
-                            .write_capacity_units(60)
-                            .build()?,
-                    )
-                    .build()?,
-            )
-            .provisioned_throughput(
-                types::ProvisionedThroughput::builder()
-                    .read_capacity_units(60)
-                    .write_capacity_units(60)
-                    .build()?,
-            )
-            .send()
-            .await?;
-
-        Ok(())
     }
 
     pub async fn get_item<T>(
@@ -133,6 +55,29 @@ impl Repository {
         Ok(())
     }
 
+    pub async fn remove<T>(
+        &self,
+        pk: &str,
+        sk: &str,
+        fields: &[&str],
+    ) -> Result<(), Box<dyn std::error::Error>>
+    where
+        T: Into<WatcherItem>,
+    {
+        let _ = self
+            .client
+            .update_item()
+            .table_name(self.table_name.clone())
+            .key("PK", to_attribute_value(pk)?)
+            .key("SK", to_attribute_value(sk)?)
+            .update_expression(format!("REMOVE {}", fields.join(", ")))
+            .return_values(types::ReturnValue::UpdatedOld)
+            .send()
+            .await?;
+
+        Ok(())
+    }
+
     pub async fn list_all_items(&self) -> Result<Vec<WatcherItem>, Box<dyn std::error::Error>> {
         let response = self
             .client
@@ -149,43 +94,6 @@ impl Repository {
             .collect();
 
         Ok(items)
-    }
-
-    // pub async fn delete_all_items(&self) -> Result<(), Box<dyn std::error::Error>> {
-    //     let items = self.list_all_items().await?;
-    //     for item in items {
-    //         self.client
-    //             .delete_item()
-    //             .table_name(self.table_name.clone())
-    //             .key(item.primary_key())
-    //             .send()
-    //             .await?;
-    //     }
-    //     Ok(())
-    // }
-
-    pub async fn create_endpoint(
-        &self,
-        endpoint: &Source,
-    ) -> Result<(), Box<dyn std::error::Error>> {
-        let node: Node = endpoint.clone().into();
-        self.put_item(node).await?;
-        Ok(())
-    }
-
-    pub async fn create_sink(&self, sink: &Sink) -> Result<(), Box<dyn std::error::Error>> {
-        let node: Node = sink.clone().into();
-        self.put_item(node).await?;
-        Ok(())
-    }
-
-    pub async fn create_subscription(
-        &self,
-        subscription: &Subscription,
-    ) -> Result<(), Box<dyn std::error::Error>> {
-        let edge: Edge = subscription.clone().into();
-        self.put_item(edge).await?;
-        Ok(())
     }
 
     pub async fn get_sinks_for_endpoint(
@@ -226,29 +134,6 @@ impl Repository {
             .key("SK", to_attribute_value(source_id)?)
             .update_expression("SET schedule_name = :schedule_name")
             .expression_attribute_values(":schedule_name", to_attribute_value(schedule_name)?)
-            .send()
-            .await?;
-
-        Ok(())
-    }
-
-    pub async fn remove<T>(
-        &self,
-        pk: &str,
-        sk: &str,
-        fields: &[&str],
-    ) -> Result<(), Box<dyn std::error::Error>>
-    where
-        T: Into<WatcherItem>,
-    {
-        let result = self
-            .client
-            .update_item()
-            .table_name(self.table_name.clone())
-            .key("PK", to_attribute_value(pk)?)
-            .key("SK", to_attribute_value(sk)?)
-            .update_expression(format!("REMOVE {}", fields.join(", ")))
-            .return_values(types::ReturnValue::UpdatedOld)
             .send()
             .await?;
 
