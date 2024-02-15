@@ -44,7 +44,7 @@ mod test {
     use fake::{Fake, Faker};
 
     #[test]
-    fn test_Witnessed_serialization() {
+    fn test_witnessed_serialization() {
         let emission = Witnessed {
             source_id: "source_id".to_string(),
             state_id: "state_id".to_string(),
@@ -60,7 +60,7 @@ mod test {
     }
 
     #[test]
-    fn test_Witnessed_deserialization() {
+    fn test_witnessed_deserialization() {
         let expected = Witnessed {
             source_id: "source_id".to_string(),
             state_id: "state_id".to_string(),
@@ -75,7 +75,7 @@ mod test {
     }
 
     #[test]
-    fn test_Witnessed_from() {
+    fn test_witnessed_from() {
         let source_id = "Source:TestId".to_string();
         let state_id = "State:TestId".to_string();
 
