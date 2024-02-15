@@ -7,17 +7,17 @@ use crate::types::{Signal, Sink, WatcherItem};
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[cfg_attr(any(test, feature = "fake"), derive(PartialEq, Dummy))]
-pub struct Sent {
+pub struct Send {
     #[serde(rename = "PK")]
-    pub sink_id: String,
-    #[serde(rename = "SK")]
     pub signal_id: String,
+    #[serde(rename = "SK")]
+    pub sink_id: String,
 }
 
 impl From<(&Signal, &Sink)> for Sent {
-    fn from((signal, sink): (&Signal, &Sink)) -> Self {
+    fn from((broadcast, sink): (&Signal, &Sink)) -> Self {
         Sent {
-            signal_id: signal.id.clone(),
+            signal_id: broadcast.id.clone(),
             sink_id: sink.id.clone(),
         }
     }
@@ -51,8 +51,8 @@ mod test {
         };
 
         let expected = json!({
-            "PK": "sink_id",
-            "SK": "signal_id",
+            "PK": "signal_id",
+            "SK": "sink_id",
         });
 
         let serialized = serde_json::to_value(&sent).unwrap();
@@ -67,26 +67,26 @@ mod test {
         };
 
         let deserialized: Sent = serde_json::from_value(json!({
-            "PK": "sink_id",
-            "SK": "signal_id",
+            "PK": "signal_id",
+            "SK": "sink_id",
         }))
         .unwrap();
         assert_eq!(deserialized, expected);
     }
 
     #[test]
-    fn test_sent_from_signal_sink() {
+    fn test_sent_from_broadcast_sink() {
         let signal_id = "Signal:TestId".to_string();
         let sink_id = "Sink:TestId".to_string();
 
-        let mut signal = Faker.fake::<Signal>();
-        signal.id = signal_id.clone();
+        let mut broadcast = Faker.fake::<Signal>();
+        broadcast.id = signal_id.clone();
         let mut sink = Faker.fake::<sink::Sink>();
         sink.id = sink_id.clone();
 
         let expected = Sent { signal_id, sink_id };
 
-        let sent: Sent = (&signal, &sink).into();
+        let sent: Sent = (&broadcast, &sink).into();
         assert_eq!(sent, expected);
     }
 }
