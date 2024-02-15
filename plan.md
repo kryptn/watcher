@@ -115,11 +115,11 @@ create: (State:Timestamp | State:Timestamp | s3_key | ttl?)
 create: (Source:id | State:Timestamp)
 update: (State:#Latest -> State:#Previous)
 create: (State:Timestamp | State:#Latest)
-send: SNS:SourceObserved (State:Id)
+send: SNS:StateCreated (State:Id)
 
 
 
-SNS:SourceObserved
+SNS:StateCreated
 get observation
 get previous observation
 if diff:

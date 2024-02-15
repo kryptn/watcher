@@ -3,13 +3,24 @@ use serde::{Deserialize, Serialize};
 use super::State;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct ScheduledState {
+pub struct SourceSchedule {
     pub source_id: String,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct SourceObserved {
+pub struct StateCreated {
     pub source_id: String,
     pub state_id: String,
-    pub observation: State,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct SourceSignalUpdated {
+    pub source_id: String,
+    pub signal_id: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct SinkSignalCreated {
+    pub sink_id: String,
+    pub signal_id: String,
 }

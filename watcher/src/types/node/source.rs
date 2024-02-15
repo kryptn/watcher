@@ -101,7 +101,7 @@ mod test {
     use serde_json::json;
 
     #[test]
-    fn test_endpoint_serialization() {
+    fn test_source_serialization() {
         let endpoint = Source {
             id: "id".to_string(),
             _sk: "sk".to_string(),
@@ -130,7 +130,7 @@ mod test {
     }
 
     #[test]
-    fn test_endpoint_deserialization() {
+    fn test_source_deserialization() {
         let json = json!({
             "PK": "id",
             "SK": "sk",
@@ -159,7 +159,7 @@ mod test {
     }
 
     #[test]
-    fn test_endpoint_fake() {
+    fn test_source_fake() {
         let endpoint = Source::mock();
         println!("{:#?}", endpoint);
         assert_eq!(endpoint.id, endpoint._sk);

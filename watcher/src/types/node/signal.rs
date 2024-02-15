@@ -14,6 +14,9 @@ pub struct Signal {
     pub sk: String,
 
     created_at: chrono::DateTime<chrono::Utc>,
+
+    // this should really be serde_json::Value
+    // i haven't tried to handle that with faker yet
     contents: String,
 
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -49,7 +52,7 @@ mod test {
     use serde_json::json;
 
     #[test]
-    fn test_broadcast_serialization() {
+    fn test_signal_serialization() {
         let now = chrono::Utc::now();
 
         let broadcast = Signal {
@@ -73,7 +76,7 @@ mod test {
     }
 
     #[test]
-    fn test_broadcast_deserialization() {
+    fn test_signal_deserialization() {
         let now = chrono::Utc::now();
 
         let json = json!({

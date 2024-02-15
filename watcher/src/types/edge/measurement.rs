@@ -44,7 +44,7 @@ mod test {
     use fake::{Fake, Faker};
 
     #[test]
-    fn test_measurement_serialization() {
+    fn test_state_serialization() {
         let measurement = Measurement {
             source_id: "source_id".to_string(),
             state_id: "state_id".to_string(),
@@ -60,7 +60,7 @@ mod test {
     }
 
     #[test]
-    fn test_measurement_deserialization() {
+    fn test_state_deserialization() {
         let expected = Measurement {
             source_id: "source_id".to_string(),
             state_id: "state_id".to_string(),
@@ -75,7 +75,7 @@ mod test {
     }
 
     #[test]
-    fn test_measurement_from_endpoint_observation() {
+    fn test_state_from_endpoint_observation() {
         let source_id = "Source:TestId".to_string();
         let state_id = "State:TestId".to_string();
 

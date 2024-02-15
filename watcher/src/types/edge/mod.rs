@@ -7,8 +7,8 @@ pub use measurement::*;
 pub mod subscription;
 pub use subscription::*;
 
-pub mod emission;
-pub use emission::*;
+pub mod last_signal;
+pub use last_signal::*;
 
 pub mod sent;
 pub use sent::*;
@@ -19,8 +19,39 @@ pub use sent::*;
 pub enum Edge {
     Measurement(Measurement),
     Subscription(Subscription),
-    Emission(Emission),
+    LastSignal(LastSignal),
     Sent(Sent),
+
+    Witnessed {
+        #[serde(rename = "PK")]
+        source_id: String,
+        #[serde(rename = "SK")]
+        state_id: String,
+    },
+    Attested {
+        #[serde(rename = "PK")]
+        source_id: String,
+        #[serde(rename = "SK")]
+        state_id: String,
+    },
+    Measured {
+        #[serde(rename = "PK")]
+        state_id: String,
+        #[serde(rename = "SK")]
+        signal_id: String,
+    },
+    Derived {
+        #[serde(rename = "PK")]
+        state_id: String,
+        #[serde(rename = "SK")]
+        signal_id: String,
+    },
+    Last {
+        #[serde(rename = "PK")]
+        source_id: String,
+        #[serde(rename = "SK")]
+        signal_id: String,
+    },
 }
 
 impl From<Measurement> for Edge {
@@ -35,9 +66,9 @@ impl From<Subscription> for Edge {
     }
 }
 
-impl From<Emission> for Edge {
-    fn from(emission: Emission) -> Self {
-        Edge::Emission(emission)
+impl From<LastSignal> for Edge {
+    fn from(emission: LastSignal) -> Self {
+        Edge::LastSignal(emission)
     }
 }
 
