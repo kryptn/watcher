@@ -10,6 +10,12 @@ pub use subscription::*;
 pub mod last_signal;
 pub use last_signal::*;
 
+pub mod witnessed;
+pub use witnessed::*;
+
+pub mod asserted;
+pub use asserted::*;
+
 pub mod sent;
 pub use sent::*;
 
@@ -21,37 +27,8 @@ pub enum Edge {
     Subscription(Subscription),
     LastSignal(LastSignal),
     Sent(Sent),
-
-    Witnessed {
-        #[serde(rename = "PK")]
-        source_id: String,
-        #[serde(rename = "SK")]
-        state_id: String,
-    },
-    Attested {
-        #[serde(rename = "PK")]
-        source_id: String,
-        #[serde(rename = "SK")]
-        state_id: String,
-    },
-    Measured {
-        #[serde(rename = "PK")]
-        state_id: String,
-        #[serde(rename = "SK")]
-        signal_id: String,
-    },
-    Derived {
-        #[serde(rename = "PK")]
-        state_id: String,
-        #[serde(rename = "SK")]
-        signal_id: String,
-    },
-    Last {
-        #[serde(rename = "PK")]
-        source_id: String,
-        #[serde(rename = "SK")]
-        signal_id: String,
-    },
+    Asserted(Asserted),
+    Witnessed(Witnessed),
 }
 
 impl From<Measurement> for Edge {
@@ -69,6 +46,18 @@ impl From<Subscription> for Edge {
 impl From<LastSignal> for Edge {
     fn from(emission: LastSignal) -> Self {
         Edge::LastSignal(emission)
+    }
+}
+
+impl From<Asserted> for Edge {
+    fn from(asserted: Asserted) -> Self {
+        Edge::Asserted(asserted)
+    }
+}
+
+impl From<Witnessed> for Edge {
+    fn from(witnessed: Witnessed) -> Self {
+        Edge::Witnessed(witnessed)
     }
 }
 
