@@ -11,6 +11,9 @@ use clap::{Args, Parser, Subcommand, ValueEnum};
 pub(crate) struct Cli {
     #[command(subcommand)]
     pub command: Commands,
+
+    #[arg(short, long, global = true)]
+    pub file: Option<PathBuf>,
 }
 
 #[derive(Debug, Subcommand)]
@@ -25,12 +28,11 @@ pub enum Commands {
     #[command(arg_required_else_help = true)]
     Delete(DeleteArgs),
 
-    GenerateData {
-        endpoint_count: u32,
-        sink_count: u32,
-        connectivity: u32,
-    },
-
+    // GenerateData {
+    //     endpoint_count: u32,
+    //     sink_count: u32,
+    //     connectivity: u32,
+    // },
     GetSinksForSource {
         source_id: String,
     },
@@ -45,6 +47,8 @@ pub enum Commands {
     DeleteSchedule {
         source_id: String,
     },
+
+    SendMessage(SendMessageArgs),
 }
 
 #[derive(Debug, Args)]

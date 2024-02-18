@@ -1,9 +1,12 @@
+use std::{ffi::OsString, path::PathBuf};
+
 use clap::Parser;
 use dynamodb::config::endpoint;
 use envconfig::Envconfig;
 use serde_dynamo::{to_item, Item};
 
 use watcher::{
+    meta_repo,
     repository::Repository,
     scheduling::{self, create_schedule},
     types::{Signal, Sink, Source, State, Subscription, WatcherItem},
@@ -59,6 +62,14 @@ fn create_example_data(
     (endpoints, sinks, subscriptions)
 }
 
+fn readfile<T: serde::de::DeserializeOwned>(
+    filename: PathBuf,
+) -> Result<T, Box<dyn std::error::Error>> {
+    let f = std::fs::File::open(filename)?;
+    let config_data: T = serde_json::from_reader(f)?;
+    Ok(config_data)
+}
+
 #[derive(Envconfig)]
 struct Config {
     #[envconfig(from = "TABLE_NAME")]
@@ -84,7 +95,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     };
 
     let client = aws_sdk_dynamodb::Client::new(&aws_config);
-    let repo = Repository::new(table_name.to_string(), client);
+    let repo = Repository::new(table_name.to_string(), client.clone());
+    let metarepo = meta_repo::Repository::new(table_name.to_string(), client);
 
     match cli.command {
         cli::Commands::Get { id } => {
@@ -95,17 +107,26 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             let cmd = cmd.command.unwrap();
             match cmd {
                 cli::CreateCommands::Source { name } => {
-                    println!("create endpoint -> {}", name);
+                    println!("create source -> {}", name);
+                    let source = readfile::<Source>(cli.file.unwrap())?;
+                    let item: WatcherItem = source.into();
+                    repo.put_item(item).await?;
                 }
                 cli::CreateCommands::Sink { name } => {
                     println!("create sink -> {}", name);
+                    let sink = readfile::<Sink>(cli.file.unwrap())?;
+                    let item: WatcherItem = sink.into();
+                    repo.put_item(item).await?;
                 }
                 cli::CreateCommands::Subscription { source_id, sink_id } => {
                     println!("create subscription -> {}, {}", source_id, sink_id);
+                    let subscription = readfile::<Subscription>(cli.file.unwrap())?;
+                    let item: WatcherItem = subscription.into();
+                    repo.put_item(item).await?;
                 }
                 cli::CreateCommands::Table {} => {
                     println!("create table");
-                    repo.create_table().await?;
+                    metarepo.create_table().await?;
                 }
             }
         }
@@ -123,33 +144,33 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 }
                 cli::DeleteCommands::Table {} => {
                     println!("delete table");
-                    repo.delete_table().await?;
+                    metarepo.delete_table().await?;
                 }
             }
         }
-        cli::Commands::GenerateData {
-            endpoint_count,
-            sink_count,
-            connectivity,
-        } => {
-            let (endpoints, sinks, subscriptions) =
-                create_example_data(endpoint_count, sink_count, connectivity);
-            for endpoint in endpoints.iter() {
-                repo.put_item(endpoint).await?;
-            }
-            for sink in sinks.iter() {
-                repo.put_item(sink).await?;
-            }
-            for subscription in subscriptions.iter() {
-                repo.put_item(subscription).await?;
-            }
-        }
-        cli::Commands::GetSinksForSource { source_id } => {
-            let subs = repo.get_sinks_for_endpoint(source_id).await?;
-            for sub in subs {
-                println!("{:?}", sub);
-            }
-        }
+        // cli::Commands::GenerateData {
+        //     endpoint_count,
+        //     sink_count,
+        //     connectivity,
+        // } => {
+        //     let (endpoints, sinks, subscriptions) =
+        //         create_example_data(endpoint_count, sink_count, connectivity);
+        //     for endpoint in endpoints.iter() {
+        //         repo.put_item(endpoint).await?;
+        //     }
+        //     for sink in sinks.iter() {
+        //         repo.put_item(sink).await?;
+        //     }
+        //     for subscription in subscriptions.iter() {
+        //         repo.put_item(subscription).await?;
+        //     }
+        // }
+        // cli::Commands::GetSinksForSource { source_id } => {
+        //     let subs = repo.get_sinks_for_endpoint(source_id).await?;
+        //     for sub in subs {
+        //         println!("{:?}", sub);
+        //     }
+        // }
         cli::Commands::CreateSchedule {
             source_id,
             function_name,
@@ -170,8 +191,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             };
 
             scheduling::create_schedule(&client, &schedule_name, target_config, &input).await?;
-            repo.set_schedule_name_for_endpoint(&source_id, &schedule_name)
-                .await?;
+            // repo.set_schedule_name_for_endpoint(&source_id, &schedule_name)
+            // .await?;
 
             println!("created schedule {}", schedule_name);
         }
@@ -187,6 +208,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                     .await?;
             }
         }
+        cli::Commands::GetSinksForSource { source_id } => todo!(),
     }
 
     Ok(())
