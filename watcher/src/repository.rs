@@ -9,6 +9,14 @@ pub struct Repository {
 }
 
 impl Repository {
+    pub async fn lambda_new(table_name: String) -> Self {
+        let aws_config = aws_config::load_from_env().await;
+        let client = aws_sdk_dynamodb::Client::new(&aws_config);
+        Self { table_name, client }
+    }
+}
+
+impl Repository {
     pub fn new(table_name: String, client: aws_sdk_dynamodb::Client) -> Self {
         Self { table_name, client }
     }
@@ -96,7 +104,7 @@ impl Repository {
         Ok(items)
     }
 
-    pub async fn get_sinks_for_endpoint(
+    pub async fn get_sinks_for_source(
         &self,
         source_id: String,
     ) -> Result<Vec<Subscription>, Box<dyn std::error::Error>> {
@@ -122,7 +130,7 @@ impl Repository {
         Ok(items)
     }
 
-    pub async fn set_schedule_name_for_endpoint(
+    pub async fn set_schedule_name_for_source(
         &self,
         source_id: &str,
         schedule_name: &str,

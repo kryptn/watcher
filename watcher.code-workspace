@@ -9,6 +9,7 @@
     "rust-analyzer.linkedProjects": [
       "./functions/add-endpoint/Cargo.toml",
       "./functions/observe-endpoint/Cargo.toml",
+      "./functions/send-signal/Cargo.toml",
       "./cli/Cargo.toml",
       "./watcher/Cargo.toml"
     ]

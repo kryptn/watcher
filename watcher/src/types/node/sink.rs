@@ -13,13 +13,13 @@ pub struct Sink {
     #[serde(rename = "SK")]
     pub _sk: String,
 
-    created_at: chrono::DateTime<chrono::Utc>,
+    pub created_at: chrono::DateTime<chrono::Utc>,
 
     #[serde(flatten)]
-    sink: SinkType,
+    pub sink: SinkType,
 
     #[serde(skip_serializing_if = "Option::is_none")]
-    last_status_code: Option<u8>,
+    pub last_status_code: Option<u8>,
 }
 
 impl Sink {

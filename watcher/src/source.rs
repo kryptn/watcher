@@ -46,7 +46,7 @@ pub struct FeedItem {}
 
 impl<'a, T> Source<'a, T> for Rss
 where
-    T: Serialize + Deserialize<'a> + Clone,
+    T: Serialize + Deserialize<'a> + Clone + std::convert::From<std::string::String>,
     SdkBody: From<T>,
 {
     type Item = String;
@@ -54,8 +54,9 @@ where
 
     async fn fetch(&self, metadata: &RssMetadata) -> Result<T, Box<dyn std::error::Error>> {
         let response = self.client.get(&metadata.url).send().await?;
-        let body = response.text().await?;
-        Ok(T::from(body))
+        let content: T = response.text().await?.into();
+
+        Ok(content)
     }
 
     async fn store(&self, key: &str, body: T) -> Result<(), Box<dyn std::error::Error>>
