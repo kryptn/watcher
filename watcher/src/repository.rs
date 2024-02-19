@@ -1,4 +1,7 @@
-use aws_sdk_dynamodb::types;
+use std::collections::HashMap;
+
+use aws_sdk_dynamodb::types::{self, AttributeValue};
+use itertools::Itertools;
 use serde_dynamo::{to_attribute_value, Item};
 // use serde_json::Value;
 
@@ -26,6 +29,12 @@ impl Repository {
         let client = aws_sdk_dynamodb::Client::new(&aws_config);
         Self { table_name, client }
     }
+}
+
+fn as_av_hashmap(item: Item) -> HashMap<String, AttributeValue> {
+    item.iter()
+        .map(|(k, v)| (k.clone(), to_attribute_value(v.clone()).unwrap()))
+        .collect()
 }
 
 impl Repository {
@@ -72,6 +81,47 @@ impl Repository {
             .set_item(Some(item.into()))
             .send()
             .await?;
+
+        Ok(())
+    }
+
+    pub async fn put_items<T>(
+        &self,
+        items: impl Iterator<Item = T>,
+    ) -> Result<(), Box<dyn std::error::Error>>
+    where
+        T: Into<WatcherItem>,
+    {
+        let items = items
+            .map(|i| i.into())
+            // convert to a WatcherItem
+            .map(WatcherItem::from)
+            // convert to a DynamoDB item
+            .map(serde_dynamo::to_item)
+            // convert Result to Option, filter out failures
+            .filter_map(Result::ok)
+            // adds SK to Node items
+            .map(ensure_sk)
+            // convert to a HashMap
+            .map(as_av_hashmap);
+
+        let chunks = items.chunks(25);
+
+        for chunk in &chunks {
+            let mut request = self.client.batch_write_item();
+
+            for item in chunk {
+                let item_request = types::PutRequest::builder().set_item(Some(item)).build()?;
+                request = request.request_items(
+                    self.table_name.clone(),
+                    vec![types::WriteRequest::builder()
+                        .put_request(item_request)
+                        .build()],
+                );
+            }
+
+            request.send().await?;
+        }
 
         Ok(())
     }
