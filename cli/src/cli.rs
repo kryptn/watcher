@@ -48,8 +48,34 @@ pub enum Commands {
         source_id: String,
     },
 
-    SendMessage(SendMessageArgs),
+    SendEvent {},
+    // #[command(arg_required_else_help = true)]
+    // Fake(FakeDataArgs),
 }
+
+// #[derive(Debug, Args)]
+// #[command(args_conflicts_with_subcommands = true)]
+// pub struct FakeDataArgs {
+//     #[command(subcommand)]
+//     pub command: FakeDataCommands,
+// }
+
+// #[derive(Debug, Subcommand)]
+// pub enum FakeDataCommands {
+//     #[command(arg_required_else_help = true)]
+//     Source {},
+
+//     Sink {},
+
+//     Subscription {},
+
+//     Signal {},
+
+//     Event {
+//         sink_id: String,
+//         signal_id: String,
+//     },
+// }
 
 #[derive(Debug, Args)]
 #[command(args_conflicts_with_subcommands = true)]
@@ -76,6 +102,8 @@ pub enum CreateCommands {
         source_id: String,
         sink_id: String,
     },
+
+    Signal {},
 
     Table {},
 }

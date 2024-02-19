@@ -38,6 +38,10 @@ output "watcher_events_queue_arn" {
   value = aws_sqs_queue.watcher_events_queue.arn
 }
 
+output "watcher_events_queue_url" {
+  value = aws_sqs_queue.watcher_events_queue.url
+}
+
 output "events_queue_policy_arn" {
   value = aws_iam_policy.events_queue_policy.arn
 }

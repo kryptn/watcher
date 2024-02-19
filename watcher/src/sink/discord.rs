@@ -9,16 +9,6 @@ pub struct Config {
     pub webhook: String,
 }
 
-impl From<node::Sink> for Config {
-    fn from(node: node::Sink) -> Self {
-        match node.sink {
-            node::SinkType::Discord(discord) => Config {
-                webhook: discord.url,
-            },
-        }
-    }
-}
-
 impl Config {
     pub async fn send(&self, payload: WebhookPayload) -> Result<(), String> {
         let client = reqwest::Client::new();

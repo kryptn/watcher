@@ -13,7 +13,6 @@ pub mod signal;
 pub use signal::*;
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
-#[cfg_attr(test, derive(PartialEq))]
 #[serde(rename_all = "snake_case", tag = "node_type")]
 pub enum Node {
     Source(Source),

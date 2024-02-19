@@ -20,7 +20,6 @@ pub mod sent;
 pub use sent::*;
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
-#[cfg_attr(test, derive(PartialEq))]
 #[serde(rename_all = "snake_case", tag = "edge_type")]
 pub enum Edge {
     Measurement(Measurement),
@@ -66,3 +65,6 @@ impl From<Sent> for Edge {
         Edge::Sent(sent)
     }
 }
+
+#[cfg(test)]
+mod test {}

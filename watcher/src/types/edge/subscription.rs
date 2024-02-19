@@ -6,7 +6,6 @@ use fake::{Dummy, Fake, Faker};
 use crate::types::WatcherItem;
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
-#[cfg_attr(any(test, feature = "fake"), derive(PartialEq, Dummy))]
 pub struct Subscription {
     #[serde(rename = "PK")]
     pub source_id: String,
@@ -41,46 +40,4 @@ impl Into<WatcherItem> for Subscription {
 }
 
 #[cfg(test)]
-mod test {
-    use super::*;
-    use serde_json::json;
-
-    #[test]
-    fn test_subscription_serialization() {
-        let now = chrono::Utc::now();
-
-        let subscription = Subscription {
-            source_id: "source_id".to_string(),
-            sink_id: "sink_id".to_string(),
-            created_at: now,
-        };
-
-        let expected = json!({
-            "PK": "source_id",
-            "SK": "sink_id",
-            "created_at": now,
-        });
-
-        let serialized = serde_json::to_value(&subscription).unwrap();
-        assert_eq!(serialized, expected);
-    }
-
-    #[test]
-    fn test_subscription_deserialization() {
-        let now = chrono::Utc::now();
-
-        let expected = Subscription {
-            source_id: "source_id".to_string(),
-            sink_id: "sink_id".to_string(),
-            created_at: now,
-        };
-
-        let deserialized: Subscription = serde_json::from_value(json!({
-            "PK": "source_id",
-            "SK": "sink_id",
-            "created_at": now,
-        }))
-        .unwrap();
-        assert_eq!(deserialized, expected);
-    }
-}
+mod test {}

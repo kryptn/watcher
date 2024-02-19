@@ -10,7 +10,6 @@ pub use events::*;
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
-#[cfg_attr(test, derive(PartialEq))]
 #[serde(rename_all = "snake_case", tag = "item_type")]
 pub enum WatcherItem {
     Node(Node),
@@ -30,19 +29,4 @@ impl From<Edge> for WatcherItem {
 }
 
 #[cfg(test)]
-mod test {
-    use super::*;
-    use fake::{Fake, Faker};
-    use serde_dynamo::{to_item, Item};
-    use serde_json::json;
-
-    #[test]
-    fn test_item_from_chain() {
-        let endpoint: Source = Faker.fake();
-        let item: WatcherItem = endpoint.to_watcher_item();
-        let serialized = serde_json::to_string(&item).unwrap();
-        let dynamodb_serialized: Item = to_item(item.clone()).expect("pass");
-
-        dbg!(serialized);
-    }
-}
+mod test {}

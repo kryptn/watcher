@@ -1,6 +1,6 @@
 use aws_sdk_sqs::{client, Client};
 
-struct SqsProvider {
+pub struct SqsProvider {
     client: Client,
     queue_url: String,
 }

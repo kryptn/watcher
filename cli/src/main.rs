@@ -6,10 +6,11 @@ use envconfig::Envconfig;
 use serde_dynamo::{to_item, Item};
 
 use watcher::{
+    messaging::SqsProvider,
     meta_repo,
     repository::Repository,
     scheduling::{self, create_schedule},
-    types::{Signal, Sink, Source, State, Subscription, WatcherItem},
+    types::{Event, Signal, Sink, SinkSignalCreated, Source, State, Subscription, WatcherItem},
 };
 
 use aws_sdk_dynamodb as dynamodb;
@@ -18,49 +19,33 @@ use rand::{thread_rng, Rng};
 
 mod cli;
 
-fn create_example_data(
-    endpoints: u32,
-    sinks: u32,
-    conn_pct: u32,
-) -> (Vec<Source>, Vec<Sink>, Vec<Subscription>) {
-    let sinks = (0..sinks).map(|_| Sink::mock()).collect::<Vec<_>>();
-    let endpoints = (0..endpoints).map(|_| Source::mock()).collect::<Vec<_>>();
-    let subscriptions = sinks
-        .iter()
-        .map(|sink| {
-            endpoints.iter().map(|endpoint| {
-                let mut rng = thread_rng();
-                let n: &u32 = &rng.gen_range(0..=100);
+// fn create_example_data(
+//     endpoints: u32,
+//     sinks: u32,
+//     conn_pct: u32,
+// ) -> (Vec<Source>, Vec<Sink>, Vec<Subscription>) {
+//     let sinks = (0..sinks).map(|_| Sink::mock()).collect::<Vec<_>>();
+//     let endpoints = (0..endpoints).map(|_| Source::mock()).collect::<Vec<_>>();
+//     let subscriptions = sinks
+//         .iter()
+//         .map(|sink| {
+//             endpoints.iter().map(|endpoint| {
+//                 let mut rng = thread_rng();
+//                 let n: &u32 = &rng.gen_range(0..=100);
 
-                if n <= &conn_pct {
-                    let subscription = Subscription::new(endpoint.id.clone(), sink.id.clone());
-                    Some(subscription)
-                } else {
-                    None
-                }
-            })
-        })
-        .flatten()
-        .filter_map(|subscription| subscription)
-        .collect::<Vec<_>>();
-
-    // let items = sinks
-    //     .into_iter()
-    //     .map(|sink| sink.to_watcher_item())
-    //     .chain(
-    //         endpoints
-    //             .into_iter()
-    //             .map(|endpoint| endpoint.to_watcher_item()),
-    //     )
-    //     .chain(
-    //         subscriptions
-    //             .into_iter()
-    //             .map(|subscription| subscription.to_watcher_item()),
-    //     )
-    //     .collect::<Vec<_>>();
-
-    (endpoints, sinks, subscriptions)
-}
+//                 if n <= &conn_pct {
+//                     let subscription = Subscription::new(endpoint.id.clone(), sink.id.clone());
+//                     Some(subscription)
+//                 } else {
+//                     None
+//                 }
+//             })
+//         })
+//         .flatten()
+//         .filter_map(|subscription| subscription)
+//         .collect::<Vec<_>>();
+//     (endpoints, sinks, subscriptions)
+// }
 
 fn readfile<T: serde::de::DeserializeOwned>(
     filename: PathBuf,
@@ -77,6 +62,9 @@ struct Config {
 
     #[envconfig(from = "ENDPOINT_URL")]
     pub endpoint: Option<String>,
+
+    #[envconfig(from = "SQS_QUEUE_URL")]
+    pub sqs_queue_url: String,
 }
 
 #[tokio::main]
@@ -97,6 +85,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let client = aws_sdk_dynamodb::Client::new(&aws_config);
     let repo = Repository::new(table_name.to_string(), client.clone());
     let metarepo = meta_repo::Repository::new(table_name.to_string(), client);
+    let queue = SqsProvider::new(config.sqs_queue_url).await;
 
     match cli.command {
         cli::Commands::Get { id } => {
@@ -128,6 +117,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                     println!("create table");
                     metarepo.create_table().await?;
                 }
+                cli::CreateCommands::Signal {} => {
+                    println!("create signal");
+                    let signal = readfile::<Signal>(cli.file.unwrap())?;
+                    let item: WatcherItem = signal.into();
+                    repo.put_item(item).await?;
+                }
             }
         }
         cli::Commands::Delete(cmd) => {
@@ -135,6 +130,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             match cmd {
                 cli::DeleteCommands::Source { id } => {
                     println!("delete endpoint -> {}", id);
+                    let source = readfile::<Source>(cli.file.unwrap())?;
+                    let source_id = source.id;
                 }
                 cli::DeleteCommands::Sink { id } => {
                     println!("delete sink -> {}", id);
@@ -209,6 +206,43 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             }
         }
         cli::Commands::GetSinksForSource { source_id } => todo!(),
+
+        cli::Commands::SendEvent {} => {
+            let event = readfile::<Event>(cli.file.unwrap())?;
+            queue.send(event).await?;
+        } // cli::Commands::Fake(cmd) => match cmd.command {
+          //     cli::FakeDataCommands::Source {} => {
+          //         let source = Source::mock();
+          //         let item: WatcherItem = source.into();
+          //         println!("{}", serde_json::to_string_pretty(&item)?);
+          //         repo.put_item(item).await?;
+          //     }
+          //     cli::FakeDataCommands::Sink {} => {
+          //         let sink = Sink::mock();
+          //         let item: WatcherItem = sink.into();
+          //         println!("{}", serde_json::to_string_pretty(&item)?);
+          //     }
+          //     cli::FakeDataCommands::Subscription {} => {
+          //         let source = Source::mock();
+          //         let sink = Sink::mock();
+          //         let subscription = Subscription::new(source.id.clone(), sink.id.clone());
+          //         let item: WatcherItem = subscription.into();
+          //         println!("{}", serde_json::to_string_pretty(&item)?);
+          //     }
+          //     cli::FakeDataCommands::Signal {} => {
+          //         let signal = Signal::mock();
+          //         let item: WatcherItem = signal.into();
+          //         println!("{}", serde_json::to_string_pretty(&item)?);
+          //     }
+          //     cli::FakeDataCommands::Event { sink_id, signal_id } => {
+          //         let event = SinkSignalCreated {
+          //             sink_id: sink_id,
+          //             signal_id: signal_id,
+          //         };
+          //         let event: Event = event.into();
+          //         println!("{}", serde_json::to_string_pretty(&event)?);
+          //     }
+          // },
     }
 
     Ok(())

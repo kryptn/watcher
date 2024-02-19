@@ -48,7 +48,7 @@ resource "aws_lambda_event_source_mapping" "send_signal" {
     filter {
       pattern = jsonencode({
         body = {
-          event_type : ["send_message"]
+          event_type : ["sink_signal_created"]
         }
       })
     }
