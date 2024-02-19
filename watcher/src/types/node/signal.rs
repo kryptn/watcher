@@ -98,20 +98,18 @@ mod test {
 
     #[test]
     fn test_signal_deserialize() {
-        // let serialized = json!({
-        //     "PK": "Signal:State:source_id:2021-08-01T00:00:00Z",
-        //     "SK": "sk",
-        //     "source_id": "source_id",
-        //     "created_at": "2021-08-01T00:00:00Z",
-        //     "contents": "contents",
-        //     "ttl": 60,
-        //     "latest": true
-        // });
+        let serialized = json!({
+            "PK": "Signal:State:source_id:2024-02-19T07:34:20.987349Z",
+            "SK": "sk",
+            "source_id": "source_id",
+            "created_at": "2024-02-19T07:34:20.987452Z",
+            "contents": "contents",
+            "ttl": 60,
+            "latest": true
+        })
+        .to_string();
 
-        let serialized = r#"{"PK":"Signal:State:source_id:2024-02-19T07:34:20.987349Z","SK":"sk","source_id":"source_id","created_at":"2024-02-19T07:34:20.987452Z","contents":"contents","ttl":60}"#;
-        // let deserialized: Signal = serde_json::from_str(serialized).unwrap();
-
-        let mut d = serde_json::Deserializer::from_str(serialized);
+        let mut d = serde_json::Deserializer::from_str(&serialized);
         let result: Result<Signal, _> = serde_path_to_error::deserialize(&mut d);
         // let out = serde_path_to_error::deserialize(d);
 
