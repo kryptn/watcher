@@ -15,16 +15,13 @@ aws-config = { version = "1.1.5", features = ["behavior-version-latest"] }
 aws-sdk-dynamodb = "1.14.0"
 tokio = { version = "1.36.0", features = ["full"] }
 
-gchrono = { version = "0.4.33", features = ["serde"] }
+chrono = { version = "0.4.33", features = ["serde"] }
 aws-sdk-eventbridge = "1.13.0"
 aws-sdk-scheduler = "1.13.0"
 aws-sdk-s3 = "1.15.0"
 aws-sdk-sns = "1.13.0"
 aws-sdk-sqs = "1.13.0"
-reqwest = { version = "0.11.24", default-features = false, features = [
-    "rustls-tls",
-    "json",
-] }
+reqwest = { version = "0.11.24", default-features = false, features = ["rustls-tls", "json"] }
 itertools = "0.12.1"
 envconfig = "0.10.0"
 serde_path_to_error = "0.1.15"
