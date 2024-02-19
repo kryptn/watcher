@@ -7,7 +7,7 @@ edition = "2021"
 
 [dependencies]
 serde_json = "1.0.113"
-watcher = { path = "../watcher", features = ["fake"] }
+watcher = { path = "../watcher" }
 
 aws-config = { version = "1.1.5", features = ["behavior-version-latest"] }
 aws-sdk-dynamodb = "1.14.0"
