@@ -3,14 +3,14 @@ use serde::{Deserialize, Serialize};
 #[cfg(any(test, feature = "fake"))]
 use fake::{Dummy, Fake, Faker};
 
-use crate::types::{Signal, Sink, WatcherItem};
+use crate::types::{Signal, SignalId, Sink, WatcherItem};
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct Sent {
     #[serde(rename = "PK")]
     pub sink_id: String,
     #[serde(rename = "SK")]
-    pub signal_id: String,
+    pub signal_id: SignalId,
 }
 
 impl From<(&Signal, &Sink)> for Sent {

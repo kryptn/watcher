@@ -2,10 +2,10 @@ use std::{ffi::OsString, path::PathBuf};
 
 use clap::Parser;
 use dynamodb::config::endpoint;
-use envconfig::Envconfig;
 use serde_dynamo::{to_item, Item};
 
 use watcher::{
+    config::{self, Config},
     messaging::SqsProvider,
     meta_repo,
     repository::Repository,
@@ -15,37 +15,7 @@ use watcher::{
 
 use aws_sdk_dynamodb as dynamodb;
 
-use rand::{thread_rng, Rng};
-
 mod cli;
-
-// fn create_example_data(
-//     endpoints: u32,
-//     sinks: u32,
-//     conn_pct: u32,
-// ) -> (Vec<Source>, Vec<Sink>, Vec<Subscription>) {
-//     let sinks = (0..sinks).map(|_| Sink::mock()).collect::<Vec<_>>();
-//     let endpoints = (0..endpoints).map(|_| Source::mock()).collect::<Vec<_>>();
-//     let subscriptions = sinks
-//         .iter()
-//         .map(|sink| {
-//             endpoints.iter().map(|endpoint| {
-//                 let mut rng = thread_rng();
-//                 let n: &u32 = &rng.gen_range(0..=100);
-
-//                 if n <= &conn_pct {
-//                     let subscription = Subscription::new(endpoint.id.clone(), sink.id.clone());
-//                     Some(subscription)
-//                 } else {
-//                     None
-//                 }
-//             })
-//         })
-//         .flatten()
-//         .filter_map(|subscription| subscription)
-//         .collect::<Vec<_>>();
-//     (endpoints, sinks, subscriptions)
-// }
 
 fn readfile<T: serde::de::DeserializeOwned>(
     filename: PathBuf,
@@ -55,24 +25,13 @@ fn readfile<T: serde::de::DeserializeOwned>(
     Ok(config_data)
 }
 
-#[derive(Envconfig)]
-struct Config {
-    #[envconfig(from = "TABLE_NAME")]
-    pub table_name: String,
-
-    #[envconfig(from = "ENDPOINT_URL")]
-    pub endpoint: Option<String>,
-
-    #[envconfig(from = "SQS_QUEUE_URL")]
-    pub sqs_queue_url: String,
-}
-
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let cli = cli::Cli::parse();
-    let config = Config::init_from_env().unwrap();
+    let config = config::init();
 
-    let table_name = config.table_name;
+    let table_name = config.table_name.unwrap();
+    let sqs_queue_url = config.sqs_queue_url.unwrap();
 
     let aws_config = {
         let mut c = aws_config::from_env();
@@ -85,7 +44,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let client = aws_sdk_dynamodb::Client::new(&aws_config);
     let repo = Repository::new(table_name.to_string(), client.clone());
     let metarepo = meta_repo::Repository::new(table_name.to_string(), client);
-    let queue = SqsProvider::new(config.sqs_queue_url).await;
+    let queue = SqsProvider::new(sqs_queue_url).await;
 
     match cli.command {
         cli::Commands::Get { id } => {
@@ -145,29 +104,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 }
             }
         }
-        // cli::Commands::GenerateData {
-        //     endpoint_count,
-        //     sink_count,
-        //     connectivity,
-        // } => {
-        //     let (endpoints, sinks, subscriptions) =
-        //         create_example_data(endpoint_count, sink_count, connectivity);
-        //     for endpoint in endpoints.iter() {
-        //         repo.put_item(endpoint).await?;
-        //     }
-        //     for sink in sinks.iter() {
-        //         repo.put_item(sink).await?;
-        //     }
-        //     for subscription in subscriptions.iter() {
-        //         repo.put_item(subscription).await?;
-        //     }
-        // }
-        // cli::Commands::GetSinksForSource { source_id } => {
-        //     let subs = repo.get_sinks_for_endpoint(source_id).await?;
-        //     for sub in subs {
-        //         println!("{:?}", sub);
-        //     }
-        // }
         cli::Commands::CreateSchedule {
             source_id,
             function_name,
@@ -188,8 +124,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             };
 
             scheduling::create_schedule(&client, &schedule_name, target_config, &input).await?;
-            // repo.set_schedule_name_for_endpoint(&source_id, &schedule_name)
-            // .await?;
 
             println!("created schedule {}", schedule_name);
         }
@@ -210,39 +144,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         cli::Commands::SendEvent {} => {
             let event = readfile::<Event>(cli.file.unwrap())?;
             queue.send(event).await?;
-        } // cli::Commands::Fake(cmd) => match cmd.command {
-          //     cli::FakeDataCommands::Source {} => {
-          //         let source = Source::mock();
-          //         let item: WatcherItem = source.into();
-          //         println!("{}", serde_json::to_string_pretty(&item)?);
-          //         repo.put_item(item).await?;
-          //     }
-          //     cli::FakeDataCommands::Sink {} => {
-          //         let sink = Sink::mock();
-          //         let item: WatcherItem = sink.into();
-          //         println!("{}", serde_json::to_string_pretty(&item)?);
-          //     }
-          //     cli::FakeDataCommands::Subscription {} => {
-          //         let source = Source::mock();
-          //         let sink = Sink::mock();
-          //         let subscription = Subscription::new(source.id.clone(), sink.id.clone());
-          //         let item: WatcherItem = subscription.into();
-          //         println!("{}", serde_json::to_string_pretty(&item)?);
-          //     }
-          //     cli::FakeDataCommands::Signal {} => {
-          //         let signal = Signal::mock();
-          //         let item: WatcherItem = signal.into();
-          //         println!("{}", serde_json::to_string_pretty(&item)?);
-          //     }
-          //     cli::FakeDataCommands::Event { sink_id, signal_id } => {
-          //         let event = SinkSignalCreated {
-          //             sink_id: sink_id,
-          //             signal_id: signal_id,
-          //         };
-          //         let event: Event = event.into();
-          //         println!("{}", serde_json::to_string_pretty(&event)?);
-          //     }
-          // },
+        }
     }
 
     Ok(())

@@ -1,3 +1,4 @@
+pub mod config;
 pub mod messaging;
 pub mod meta_repo;
 pub mod repository;
