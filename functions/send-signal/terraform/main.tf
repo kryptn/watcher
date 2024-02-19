@@ -27,6 +27,10 @@ module "lambda" {
     local.dynamodb_policy_arn,
   ]
 
+  lambda_environment = {
+    "TABLE_NAME" = var.table_name
+  }
+
   region = var.region
 }
 
