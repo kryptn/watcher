@@ -10,7 +10,8 @@ use crate::types::WatcherItem;
 #[derive(Clone, Debug)]
 pub struct SignalId {
     state_id: String,
-    created_at: chrono::DateTime<chrono::Utc>,
+    created_at: Option<chrono::DateTime<chrono::Utc>>,
+    latest: Option<bool>,
 }
 
 impl Serialize for SignalId {
@@ -18,8 +19,14 @@ impl Serialize for SignalId {
     where
         S: Serializer,
     {
+        if let Some(true) = self.latest {
+            let id = format!("Signal:{}:{}", self.state_id, "latest");
+            return s.serialize_str(&id);
+        }
+
         let ts = to_value(self.created_at).unwrap();
         let ts = ts.as_str().unwrap();
+
         let id = format!("Signal:{}:{}", self.state_id, ts);
         s.serialize_str(&id)
     }
@@ -33,11 +40,23 @@ impl<'de> Deserialize<'de> for SignalId {
         let id = String::deserialize(deserializer)?;
         let parts: Vec<&str> = id.splitn(4, ':').collect();
         let state_id = format!("State:{}", parts[2].to_string());
-        let created_at = parts[3].parse().unwrap();
+
+        let part_3 = parts[3].to_string();
+
+        if part_3 == "latest" {
+            return Ok(SignalId {
+                state_id,
+                created_at: None,
+                latest: Some(true),
+            });
+        }
+
+        let created_at = Some(part_3.parse().unwrap());
 
         Ok(SignalId {
             state_id,
             created_at,
+            latest: None,
         })
     }
 }
@@ -57,9 +76,6 @@ pub struct Signal {
 
     #[serde(skip_serializing_if = "Option::is_none")]
     ttl: Option<u64>,
-
-    #[serde(skip)]
-    latest: bool,
 }
 
 impl Into<WatcherItem> for Signal {
@@ -80,13 +96,13 @@ mod test {
         let signal = Signal {
             id: SignalId {
                 state_id: "state_id".to_string(),
-                created_at: chrono::Utc::now(),
+                created_at: Some(chrono::Utc::now()),
+                latest: None,
             },
             sk: "sk".to_string(),
             created_at: chrono::Utc::now(),
             contents: "contents".to_string(),
             ttl: Some(60),
-            latest: true,
         };
 
         let serialized = serde_json::to_string(&signal).unwrap();
@@ -110,5 +126,17 @@ mod test {
         // let out = serde_path_to_error::deserialize(d);
 
         println!("{:?}", result);
+    }
+
+    #[test]
+    fn test_signal_id_serialize() {
+        let signal_id = SignalId {
+            state_id: "state_id".to_string(),
+            created_at: Some(chrono::Utc::now()),
+            latest: Some(true),
+        };
+
+        let serialized = serde_json::to_string(&signal_id).unwrap();
+        println!("{}", serialized);
     }
 }
