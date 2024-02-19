@@ -1,7 +1,5 @@
 use chrono::prelude::*;
 use chrono::serde::ts_microseconds;
-#[cfg(any(test, feature = "fake"))]
-use fake::{Dummy, Fake, Faker};
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use serde_json::to_value;
 

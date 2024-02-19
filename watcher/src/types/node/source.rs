@@ -1,8 +1,5 @@
 use serde::{Deserialize, Serialize};
 
-#[cfg(any(test, feature = "fake"))]
-use fake::{Dummy, Fake, Faker};
-
 use crate::types::WatcherItem;
 
 #[derive(Serialize, Deserialize, Clone, Debug)]

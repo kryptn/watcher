@@ -1,8 +1,5 @@
 use serde::{Deserialize, Serialize};
 
-#[cfg(any(test, feature = "fake"))]
-use fake::{Dummy, Fake, Faker};
-
 use crate::types::{Signal, Sink, WatcherItem};
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
@@ -34,6 +31,4 @@ impl Into<WatcherItem> for Sent {
     }
 }
 #[cfg(test)]
-mod test {
-
-}
+mod test {}
