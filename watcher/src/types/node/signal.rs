@@ -65,8 +65,6 @@ impl<'de> Deserialize<'de> for SignalId {
 pub struct Signal {
     #[serde(rename = "PK")]
     pub id: SignalId,
-    #[serde(rename = "SK")]
-    pub sk: String,
 
     pub created_at: chrono::DateTime<chrono::Utc>,
 
@@ -99,7 +97,6 @@ mod test {
                 created_at: Some(chrono::Utc::now()),
                 latest: None,
             },
-            sk: "sk".to_string(),
             created_at: chrono::Utc::now(),
             contents: "contents".to_string(),
             ttl: Some(60),
@@ -113,7 +110,7 @@ mod test {
     fn test_signal_deserialize() {
         let serialized = json!({
             "PK": "Signal:State:state_id:2024-02-19T07:34:20.987349Z",
-            "SK": "sk",
+            "SK": "Signal:State:state_id:2024-02-19T07:34:20.987349Z",
             "created_at": "2024-02-19T07:34:20.987452Z",
             "contents": "contents",
             "ttl": 60,

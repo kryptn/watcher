@@ -9,8 +9,6 @@ use crate::types::WatcherItem;
 pub struct Source {
     #[serde(rename = "PK")]
     pub id: String,
-    #[serde(rename = "SK")]
-    pub _sk: String,
 
     pub name: String,
     // endpoint_type: SourceType,
@@ -25,23 +23,6 @@ pub struct Source {
 }
 
 impl Source {
-    pub fn new(
-        id: String,
-        name: String,
-        endpoint: SourceType,
-        rate: Option<String>,
-        schedule_name: Option<String>,
-    ) -> Self {
-        Self {
-            id: id.clone(),
-            _sk: id,
-            name,
-            endpoint,
-            rate,
-            schedule_name,
-        }
-    }
-
     pub fn to_watcher_item(self) -> WatcherItem {
         let node = self.into();
         WatcherItem::Node(node)

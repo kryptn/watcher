@@ -1,7 +1,19 @@
 use aws_sdk_dynamodb::types;
 use serde_dynamo::{to_attribute_value, Item};
+// use serde_json::Value;
 
 use crate::types::{Edge, Node, Sink, Source, Subscription, WatcherItem};
+
+// use serde::value::Value;
+
+fn ensure_sk(item: Item) -> Item {
+    let mut item = item;
+    if !item.contains_key("SK") {
+        let pk = item.get("PK").unwrap().clone();
+        item.insert("SK".to_string(), pk);
+    }
+    item
+}
 
 pub struct Repository {
     table_name: String,
@@ -52,6 +64,7 @@ impl Repository {
     {
         let watcher_item: WatcherItem = item.into();
         let item: Item = serde_dynamo::to_item(watcher_item)?;
+        let item = ensure_sk(item);
 
         self.client
             .put_item()

@@ -6,8 +6,6 @@ use crate::{sink::discord, types::WatcherItem};
 pub struct Sink {
     #[serde(rename = "PK")]
     pub id: String,
-    #[serde(rename = "SK")]
-    pub _sk: String,
 
     pub created_at: chrono::DateTime<chrono::Utc>,
 
