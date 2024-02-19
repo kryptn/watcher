@@ -3,21 +3,21 @@ use serde::{Deserialize, Serialize};
 #[cfg(any(test, feature = "fake"))]
 use fake::{Dummy, Fake, Faker};
 
-use crate::types::{Source, State, WatcherItem};
+use crate::types::{Source, State, StateId, WatcherItem};
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct Measurement {
     #[serde(rename = "PK")]
     pub source_id: String,
     #[serde(rename = "SK")]
-    pub state_id: String,
+    pub state_id: StateId,
 }
 
 impl From<(&Source, &State)> for Measurement {
-    fn from((endpoint, observation): (&Source, &State)) -> Self {
+    fn from((endpoint, state): (&Source, &State)) -> Self {
         Measurement {
             source_id: endpoint.id.clone(),
-            state_id: observation.id.clone(),
+            state_id: state.id.clone(),
         }
     }
 }

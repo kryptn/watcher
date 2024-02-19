@@ -60,10 +60,10 @@ impl<'de> Deserialize<'de> for StateId {
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct State {
-    #[serde(rename = "PK")]
+    #[serde(rename = "PK", alias = "SK")]
     pub id: StateId,
     #[serde(rename = "SK")]
-    pub _sk: String,
+    pub _sk: StateId,
     created_at: chrono::DateTime<chrono::Utc>,
     #[serde(skip_serializing_if = "Option::is_none")]
     s3_key: Option<String>,
