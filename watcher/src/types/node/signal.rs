@@ -9,7 +9,7 @@ use crate::types::WatcherItem;
 
 #[derive(Clone, Debug)]
 pub struct SignalId {
-    source_id: String,
+    state_id: String,
     created_at: chrono::DateTime<chrono::Utc>,
 }
 
@@ -20,7 +20,7 @@ impl Serialize for SignalId {
     {
         let ts = to_value(self.created_at).unwrap();
         let ts = ts.as_str().unwrap();
-        let id = format!("Signal:State:{}:{}", self.source_id, ts);
+        let id = format!("Signal:{}:{}", self.state_id, ts);
         s.serialize_str(&id)
     }
 }
@@ -32,11 +32,11 @@ impl<'de> Deserialize<'de> for SignalId {
     {
         let id = String::deserialize(deserializer)?;
         let parts: Vec<&str> = id.splitn(4, ':').collect();
-        let source_id = parts[2].to_string();
+        let state_id = format!("State:{}", parts[2].to_string());
         let created_at = parts[3].parse().unwrap();
 
         Ok(SignalId {
-            source_id,
+            state_id,
             created_at,
         })
     }
@@ -48,8 +48,6 @@ pub struct Signal {
     pub id: SignalId,
     #[serde(rename = "SK")]
     pub sk: String,
-
-    pub source_id: String,
 
     pub created_at: chrono::DateTime<chrono::Utc>,
 
@@ -81,11 +79,10 @@ mod test {
     fn test_signal_serialize() {
         let signal = Signal {
             id: SignalId {
-                source_id: "source_id".to_string(),
+                state_id: "state_id".to_string(),
                 created_at: chrono::Utc::now(),
             },
             sk: "sk".to_string(),
-            source_id: "source_id".to_string(),
             created_at: chrono::Utc::now(),
             contents: "contents".to_string(),
             ttl: Some(60),
@@ -99,9 +96,8 @@ mod test {
     #[test]
     fn test_signal_deserialize() {
         let serialized = json!({
-            "PK": "Signal:State:source_id:2024-02-19T07:34:20.987349Z",
+            "PK": "Signal:State:state_id:2024-02-19T07:34:20.987349Z",
             "SK": "sk",
-            "source_id": "source_id",
             "created_at": "2024-02-19T07:34:20.987452Z",
             "contents": "contents",
             "ttl": 60,
