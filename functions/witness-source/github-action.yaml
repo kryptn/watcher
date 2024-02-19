@@ -1,14 +1,14 @@
 on:
   push:
     paths:
-      - functions/observe-endpoint/**
+      - functions/witness-source/**
       - watcher/**
   pull_request:
     paths:
-      - functions/observe-endpoint/**
+      - functions/witness-source/**
       - watcher/**
 
-name: ci -- observe-endpoint
+name: ci -- witness-source
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -24,10 +24,10 @@ jobs:
         with:
           prefix-key: "v0-rust"
           key: ${{ github.workflow }}
-          workspaces: "functions/observe-endpoint -> target"
+          workspaces: "functions/witness-source -> target"
           cache-all-crates: "true"
           save-if: ${{ github.ref == 'refs/heads/main' }}
-      - run: cargo check --manifest-path functions/observe-endpoint/Cargo.toml
+      - run: cargo check --manifest-path functions/witness-source/Cargo.toml
 
   test:
     name: Test Suite
@@ -39,10 +39,10 @@ jobs:
         with:
           prefix-key: "v0-rust"
           key: ${{ github.workflow }}
-          workspaces: "functions/observe-endpoint -> target"
+          workspaces: "functions/witness-source -> target"
           cache-all-crates: "true"
           save-if: ${{ github.ref == 'refs/heads/main' }}
-      - run: cargo test --manifest-path functions/observe-endpoint/Cargo.toml
+      - run: cargo test --manifest-path functions/witness-source/Cargo.toml
 
   fmt:
     name: Rustfmt
@@ -55,10 +55,10 @@ jobs:
         with:
           prefix-key: "v0-rust"
           key: ${{ github.workflow }}
-          workspaces: "functions/observe-endpoint -> target"
+          workspaces: "functions/witness-source -> target"
           cache-all-crates: "true"
           save-if: ${{ github.ref == 'refs/heads/main' }}
-      - run: cargo fmt --manifest-path functions/observe-endpoint/Cargo.toml
+      - run: cargo fmt --manifest-path functions/witness-source/Cargo.toml
 
   clippy:
     name: Clippy
@@ -71,8 +71,8 @@ jobs:
         with:
           prefix-key: "v0-rust"
           key: ${{ github.workflow }}
-          workspaces: "functions/observe-endpoint -> target"
+          workspaces: "functions/witness-source -> target"
           cache-all-crates: "true"
           save-if: ${{ github.ref == 'refs/heads/main' }}
-      - run: cargo clippy --manifest-path functions/observe-endpoint/Cargo.toml -- -D warnings
+      - run: cargo clippy --manifest-path functions/witness-source/Cargo.toml -- -D warnings
         continue-on-error: true

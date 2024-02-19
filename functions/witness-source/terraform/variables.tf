@@ -8,13 +8,13 @@ variable "region" {
 }
 
 variable "environment" {
-    type    = string
-    default = "dev"
+  type    = string
+  default = "dev"
 }
 
 variable "name" {
   type    = string
-  default = "observe-endpoint"
+  default = "witness-source"
 }
 
 variable "function_version" {
@@ -23,9 +23,9 @@ variable "function_version" {
 }
 
 variable "artifact_bucket_name" {
-  type    = string
+  type = string
 }
 
 variable "table_name" {
-    type    = string
+  type = string
 }

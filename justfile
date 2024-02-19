@@ -4,16 +4,10 @@ artifact_bucket := env_var('ARTIFACT_BUCKET')
 fmt-all:
     rg --files -g 'Cargo.toml' | xargs -n1 cargo fmt --manifest-path
 
-
-
 build-function fn:
     #!/bin/bash
     cargo lambda build --manifest-path functions/{{fn}}/Cargo.toml --arm64 --output-format zip --release
     ls -lah functions/{{fn}}/target/lambda/{{fn}} | grep bootstrap
-
-prove:
-    #!/bin/bash
-    echo "{{artifact_bucket}}"
 
 push-artifact fn version:
     #!/bin/bash
@@ -32,7 +26,6 @@ update-version-parameter fn env:
     echo "Updating $name to \"$version\""
     aws ssm put-parameter --name $name --value $version --type String --overwrite
 
-
 generate-ci:
     #!/bin/bash
     for action in `rg --files -g 'github-action.yaml'`; do
@@ -40,7 +33,6 @@ generate-ci:
     done
 
 ws_file_default:="watcher.code-workspace"
-
 update-workspace ws_file=ws_file_default:
     rg --files -g 'Cargo.toml' | jq -Rn '.settings."rust-analyzer.linkedProjects" = [inputs | ("./" + .)]' > projects.json
     jq -s '.[0] * .[1]' {{ws_file}} projects.json > tmp.{{ws_file}}
