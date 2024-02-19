@@ -11,12 +11,12 @@ watcher = { path = "../watcher" }
 
 aws-config = { version = "1.1.5", features = ["behavior-version-latest"] }
 aws-sdk-dynamodb = "1.14.0"
-tokio = { version = "1", features = ["full"] }
+tokio = { version = "1.36.0", features = ["full"] }
 
 # probably get rid of these later
-serde_dynamo = { version = "4", features = ["aws-sdk-dynamodb+1"] }
-clap = { version = "4.4.18", features = ["derive"] }
+serde_dynamo = { version = "4.2.13", features = ["aws-sdk-dynamodb+1"] }
+clap = { version = "4.5.1", features = ["derive"] }
 rand = "0.8.5"
-chrono = { version = "0.4.33", features = ["serde"] }
+chrono = { version = "0.4.34", features = ["serde"] }
 envconfig = "0.10.0"
 serde = { version = "1.0.196", features = ["derive"] }

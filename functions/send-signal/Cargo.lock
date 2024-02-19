@@ -234,9 +234,9 @@ dependencies = [
 
 [[package]]
 name = "aws-sdk-sns"
-version = "1.13.0"
+version = "1.14.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "587a0491049bf1aeaebf75a94a2174b7c42e71be216fdc6ad13556f711c69e93"
+checksum = "3c4f4d8f653450c9b459707b24098d87bbdcad656f4261a2e747e21ef8870f02"
 dependencies = [
  "aws-credential-types",
  "aws-runtime",
