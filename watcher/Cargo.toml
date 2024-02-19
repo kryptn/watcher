@@ -23,6 +23,7 @@ aws-sdk-s3 = "1.15.0"
 aws-sdk-sns = "1.13.0"
 aws-sdk-sqs = "1.13.0"
 reqwest = { version = "0.11.24", default-features = false, features = ["rustls-tls", "json"] }
+itertools = "0.12.1"
 
 [features]
 default = []

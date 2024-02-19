@@ -19,8 +19,8 @@ async fn function_handler(event: LambdaEvent<SqsEvent>) -> Result<(), Error> {
 
     for record in event.payload.records {
         if let Some(body) = record.body {
-            println!("Received body: {}", body);
             let payload: SinkSignalCreated = serde_json::from_str(&body).unwrap();
+            tracing::info!(target: "", signal_id = payload.signal_id, sink_id = payload.sink_id);
 
             let signal: Signal = repo
                 .get_item(&payload.signal_id, &payload.signal_id)
@@ -35,10 +35,11 @@ async fn function_handler(event: LambdaEvent<SqsEvent>) -> Result<(), Error> {
             dbg!(&signal);
             dbg!(&sink);
 
-            // send_signal(sink.into(), signal);
-
-            // let out = sink::get_sink(&sink);
-            // out.send(payload.into());
+            match sink.sink {
+                types::SinkType::Discord(d) => {
+                    let resp = d.send(signal).await.unwrap();
+                }
+            }
         }
     }
 

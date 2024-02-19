@@ -12,11 +12,11 @@ pub struct Signal {
     #[serde(rename = "SK")]
     pub sk: String,
 
-    created_at: chrono::DateTime<chrono::Utc>,
+    pub created_at: chrono::DateTime<chrono::Utc>,
 
     // this should really be serde_json::Value
     // i haven't tried to handle that with faker yet
-    contents: String,
+    pub contents: String,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     ttl: Option<u64>,

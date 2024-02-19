@@ -1,16 +1,24 @@
 use serde::{Deserialize, Serialize};
 
-use crate::types::{node, Node, SinkSignalCreated};
+use crate::types::{
+    node::{self, Signal},
+    Node, SinkSignalCreated,
+};
 
 use super::Sink;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(rename_all = "snake_case", rename = "discord")]
 pub struct Config {
     pub webhook: String,
 }
 
 impl Config {
-    pub async fn send(&self, payload: WebhookPayload) -> Result<(), String> {
+    pub async fn send(&self, signal: Signal) -> Result<(), String> {
+        let payload = WebhookPayload {
+            content: signal.contents.clone(),
+        };
+
         let client = reqwest::Client::new();
         let response = client
             .post(&self.webhook)
@@ -26,12 +34,4 @@ impl Config {
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct WebhookPayload {
     pub content: String,
-}
-
-impl From<SinkSignalCreated> for WebhookPayload {
-    fn from(edge: SinkSignalCreated) -> Self {
-        WebhookPayload {
-            content: format!("Signal created: {}", edge.signal_id),
-        }
-    }
 }

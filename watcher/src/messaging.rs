@@ -1,4 +1,5 @@
-use aws_sdk_sqs::{client, Client};
+use aws_sdk_sqs::{client, operation::send_message_batch::SendMessageBatch, types, Client};
+use itertools::Itertools;
 
 pub struct SqsProvider {
     client: Client,
@@ -24,6 +25,34 @@ impl SqsProvider {
             .message_body(value.to_string())
             .send()
             .await?;
+
+        Ok(())
+    }
+
+    pub async fn send_many<T>(
+        &self,
+        messages: impl Iterator<Item = T>,
+    ) -> Result<(), Box<dyn std::error::Error>>
+    where
+        T: serde::Serialize,
+    {
+        for chunk in &messages.enumerate().chunks(10) {
+            let mut request = self
+                .client
+                .send_message_batch()
+                .queue_url(self.queue_url.clone());
+
+            for (id, message) in chunk {
+                let value: serde_json::Value = serde_json::to_value(message)?;
+                let entry = types::SendMessageBatchRequestEntry::builder()
+                    .id(id.to_string())
+                    .message_body(value.to_string())
+                    .build()?;
+                request = request.entries(entry);
+            }
+
+            request.send().await?;
+        }
 
         Ok(())
     }
