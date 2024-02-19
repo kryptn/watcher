@@ -24,6 +24,15 @@ push-artifact-commit fn:
     commit=$(git rev-parse HEAD)
     just push-artifact {{fn}} $commit
 
+update-version-parameter fn env:
+    #!/bin/bash
+    name="/{{env}}/function/{{fn}}-{{env}}/version"
+    version=$(git rev-parse HEAD)
+
+    echo "Updating $name to \"$version\""
+    aws ssm put-parameter --name $name --value $version --type String --overwrite
+
+
 generate-ci:
     #!/bin/bash
     for action in `rg --files -g 'github-action.yaml'`; do

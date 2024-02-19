@@ -1,15 +1,18 @@
+data "aws_ssm_parameter" "version" {
+  name = "/${var.environment}/function/${local.function_name}/version"
+}
+
 locals {
   function_name = "${var.name}-${var.environment}"
 
-  key = "lambda/${var.name}-${var.function_version}/bootstrap.zip"
+  key = "lambda/${var.name}-${nonsensitive(data.aws_ssm_parameter.version.value)}/bootstrap.zip"
   # real_key = "s3://${var.artifact_bucket_name}${local.key}"
 
   dynamodb_policy_arn = "arn:aws:iam::${var.account_number}:policy/dynamodb-stream-read-write"
-  sqs_policy_arn = "arn:aws:iam::${var.account_number}:policy/sqs-watcher-events-read-write"
+  sqs_policy_arn      = "arn:aws:iam::${var.account_number}:policy/sqs-watcher-events-read-write"
 
   queue_arn = "arn:aws:sqs:us-west-2:${var.account_number}:${var.sqs_queue_name}"
 }
-
 
 module "lambda" {
   source = "../../../infra/modules/lambda"
