@@ -25,3 +25,4 @@ reqwest = { version = "0.11.24", default-features = false, features = ["rustls-t
 itertools = "0.12.1"
 envconfig = "0.10.0"
 serde_path_to_error = "0.1.15"
+feed-rs = "1.4.0"

@@ -1,11 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use crate::types::{
-    node::{self, Signal},
-    Node, SinkSignalCreated,
-};
-
-use super::Sink;
+use crate::types::node::Signal;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "snake_case", rename = "discord")]

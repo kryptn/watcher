@@ -1,10 +1,12 @@
 use std::env;
 
 use lambda_runtime::{run, service_fn, Error, LambdaEvent};
+use tracing::Instrument;
 use tracing_subscriber::filter::{EnvFilter, LevelFilter};
 
 use serde::{Deserialize, Serialize};
 use watcher::{
+    messaging::SqsProvider,
     repository::Repository,
     types::{Source, SourceSchedule},
 };
@@ -19,30 +21,27 @@ struct Response {
     msg: String,
 }
 
-async fn make_repo(table_name: &str) -> Result<Repository, Box<dyn std::error::Error>> {
-    let aws_config = aws_config::load_from_env().await;
-    let client = aws_sdk_dynamodb::Client::new(&aws_config);
-    let repo = Repository::new(table_name.to_string(), client);
-
-    Ok(repo)
-}
-
 /// This is the main body for the function.
 /// Write your code inside it.
 /// There are some code example in the following URLs:
 /// - https://github.com/awslabs/aws-lambda-rust-runtime/tree/main/examples
 /// - https://github.com/aws-samples/serverless-rust-demo/
+#[tracing::instrument]
 async fn function_handler(
     event: LambdaEvent<SourceSchedule>,
 ) -> Result<Response, Box<dyn std::error::Error>> {
     let order = event.payload;
-    let table_name = env::var("TABLE_NAME").expect("TABLE_NAME must be set");
-    let repo = make_repo(&table_name).await?;
 
-    let endpoint: Source = repo.get_item(&order.source_id, &order.source_id).await?;
+    let config = watcher::config::init();
+    let repo = Repository::lambda_new(config.table_name.expect("TABLE_NAME must be set")).await;
+    let sqs = SqsProvider::new(config.sqs_queue_url.expect("SQS_QUEUE_URL must be set")).await;
 
-    tracing::info!("order: {:?}", order);
-    tracing::info!("request_id: {}", event.context.request_id);
+    let source: Source = repo
+        .get_item(&order.source_id, &order.source_id)
+        .in_current_span()
+        .await?;
+    tracing::info!(target: "fetch_source", source_id=source.id, request_id=event.context.request_id, "fetching source");
+
     // Prepare the response
     let resp = Response {
         req_id: event.context.request_id,

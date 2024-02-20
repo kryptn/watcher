@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use crate::{sink::discord, types::WatcherItem};
+use crate::{ext::discord, types::WatcherItem};
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct Sink {

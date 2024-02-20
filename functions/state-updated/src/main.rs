@@ -1,5 +1,6 @@
-use tracing_subscriber::filter::{EnvFilter, LevelFilter};use aws_lambda_events::event::sqs::SqsEvent;use lambda_runtime::{run, service_fn, Error, LambdaEvent};
-
+use aws_lambda_events::event::sqs::SqsEvent;
+use lambda_runtime::{run, service_fn, Error, LambdaEvent};
+use tracing_subscriber::filter::{EnvFilter, LevelFilter};
 
 /// This is the main body for the function.
 /// Write your code inside it.
