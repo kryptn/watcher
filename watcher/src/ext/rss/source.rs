@@ -1,6 +1,7 @@
 use crate::ext::Source;
 use serde::{Deserialize, Serialize};
 
+#[derive(Serialize, Deserialize)]
 pub struct Config {
     pub url: String,
 }

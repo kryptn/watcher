@@ -1,5 +1,6 @@
 use serde::{Deserialize, Serialize};
 
+use crate::ext;
 use crate::types::WatcherItem;
 
 #[derive(Serialize, Deserialize, Clone, Debug)]

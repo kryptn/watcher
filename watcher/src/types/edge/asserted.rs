@@ -5,9 +5,9 @@ use crate::types::{Source, State, StateId, WatcherItem};
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct Asserted {
     #[serde(rename = "PK")]
-    pub source_id: String,
-    #[serde(rename = "SK")]
     pub state_id: StateId,
+    #[serde(rename = "SK")]
+    pub source_id: String,
 }
 
 impl From<(&Source, &State)> for Asserted {

@@ -5,9 +5,9 @@ use crate::types::{Signal, Sink, WatcherItem};
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct Send {
     #[serde(rename = "PK")]
-    pub signal_id: String,
-    #[serde(rename = "SK")]
     pub sink_id: String,
+    #[serde(rename = "SK")]
+    pub signal_id: String,
 }
 
 impl From<(&Signal, &Sink)> for Sent {
