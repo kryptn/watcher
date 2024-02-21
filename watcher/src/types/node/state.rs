@@ -2,7 +2,7 @@ use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
 use serde_json::to_value;
 
-use crate::types::WatcherItem;
+use crate::types::Item;
 
 #[derive(Clone, Debug)]
 pub struct StateId {
@@ -72,15 +72,15 @@ pub struct State {
 }
 
 impl State {
-    pub fn to_watcher_item(self) -> WatcherItem {
+    pub fn to_watcher_item(self) -> Item {
         let node = self.into();
-        WatcherItem::Node(node)
+        Item::State(node)
     }
 }
 
-impl Into<WatcherItem> for State {
-    fn into(self) -> WatcherItem {
-        WatcherItem::Node(self.into())
+impl Into<Item> for State {
+    fn into(self) -> Item {
+        Item::State(self.into())
     }
 }
 

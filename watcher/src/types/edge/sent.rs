@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use crate::types::{Signal, SignalId, Sink, WatcherItem};
+use crate::types::{Item, Signal, SignalId, Sink};
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct Sent {
@@ -20,14 +20,14 @@ impl From<(&Signal, &Sink)> for Sent {
 }
 
 impl Sent {
-    pub fn to_watcher_item(self) -> WatcherItem {
+    pub fn to_watcher_item(self) -> Item {
         let edge = self.into();
-        WatcherItem::Edge(edge)
+        Item::Sent(edge)
     }
 }
-impl Into<WatcherItem> for Sent {
-    fn into(self) -> WatcherItem {
-        WatcherItem::Edge(self.into())
+impl Into<Item> for Sent {
+    fn into(self) -> Item {
+        Item::Sent(self.into())
     }
 }
 #[cfg(test)]

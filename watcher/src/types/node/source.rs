@@ -1,7 +1,8 @@
+use serde::de::DeserializeOwned;
 use serde::{Deserialize, Serialize};
 
 use crate::ext;
-use crate::types::WatcherItem;
+use crate::types::Item;
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct Source {
@@ -12,7 +13,8 @@ pub struct Source {
     // endpoint_type: SourceType,
     // endpoint_data: Value,
     #[serde(flatten)]
-    pub endpoint: SourceType,
+    // pub endpoint: serde_json::Value,
+    pub endpoint: serde_json::Value,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     pub rate: Option<String>,
@@ -21,44 +23,14 @@ pub struct Source {
 }
 
 impl Source {
-    pub fn to_watcher_item(self) -> WatcherItem {
+    pub fn to_watcher_item(self) -> Item {
         let node = self.into();
-        WatcherItem::Node(node)
+        Item::Source(node)
     }
 }
 
-impl Into<WatcherItem> for Source {
-    fn into(self) -> WatcherItem {
-        WatcherItem::Node(self.into())
+impl Into<Item> for Source {
+    fn into(self) -> Item {
+        Item::Source(self.into())
     }
 }
-
-#[derive(Serialize, Deserialize, Clone, Debug)]
-#[serde(rename_all = "snake_case")]
-pub struct Rss {
-    pub url: String,
-}
-
-#[derive(Serialize, Deserialize, Clone, Debug)]
-#[serde(rename_all = "snake_case")]
-pub struct Http {
-    pub url: String,
-    pub method: String,
-    pub headers: Vec<(String, String)>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub timeout: Option<String>,
-}
-
-#[derive(Serialize, Deserialize, Clone, Debug)]
-#[serde(
-    rename_all = "snake_case",
-    tag = "endpoint_type",
-    content = "endpoint_data"
-)]
-pub enum SourceType {
-    Rss(Rss),
-    Http(Http),
-}
-
-#[cfg(test)]
-mod test {}

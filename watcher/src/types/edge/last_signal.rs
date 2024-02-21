@@ -1,6 +1,9 @@
-use serde::{Deserialize, Serialize};
+use serde::{de::DeserializeOwned, Deserialize, Serialize};
 
-use crate::types::{Signal, SignalId, Source, WatcherItem};
+use crate::{
+    ext,
+    types::{Item, Signal, SignalId, Source},
+};
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct LastSignal {
@@ -20,15 +23,15 @@ impl From<(&Source, &Signal)> for LastSignal {
 }
 
 impl LastSignal {
-    pub fn to_watcher_item(self) -> WatcherItem {
+    pub fn to_watcher_item(self) -> Item {
         let edge = self.into();
-        WatcherItem::Edge(edge)
+        Item::LastSignal(edge)
     }
 }
 
-impl Into<WatcherItem> for LastSignal {
-    fn into(self) -> WatcherItem {
-        WatcherItem::Edge(self.into())
+impl Into<Item> for LastSignal {
+    fn into(self) -> Item {
+        Item::LastSignal(self.into())
     }
 }
 

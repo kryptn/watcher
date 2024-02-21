@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use crate::types::WatcherItem;
+use crate::types::Item;
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct Subscription {
@@ -24,15 +24,15 @@ impl Subscription {
         }
     }
 
-    pub fn to_watcher_item(self) -> WatcherItem {
+    pub fn to_watcher_item(self) -> Item {
         let edge = self.into();
-        WatcherItem::Edge(edge)
+        Item::Subscription(edge)
     }
 }
 
-impl Into<WatcherItem> for Subscription {
-    fn into(self) -> WatcherItem {
-        WatcherItem::Edge(self.into())
+impl Into<Item> for Subscription {
+    fn into(self) -> Item {
+        Item::Subscription(self.into())
     }
 }
 

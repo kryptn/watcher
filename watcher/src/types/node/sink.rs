@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use crate::{ext::discord, types::WatcherItem};
+use crate::{ext::discord, types::Item};
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct Sink {
@@ -10,22 +10,22 @@ pub struct Sink {
     pub created_at: chrono::DateTime<chrono::Utc>,
 
     #[serde(flatten)]
-    pub sink: SinkType,
+    pub sink: serde_json::Value,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     pub last_status_code: Option<u8>,
 }
 
 impl Sink {
-    pub fn to_watcher_item(self) -> WatcherItem {
+    pub fn to_watcher_item(self) -> Item {
         let node = self.into();
-        WatcherItem::Node(node)
+        Item::Sink(node)
     }
 }
 
-impl Into<WatcherItem> for Sink {
-    fn into(self) -> WatcherItem {
-        WatcherItem::Node(self.into())
+impl Into<Item> for Sink {
+    fn into(self) -> Item {
+        Item::Sink(self.into())
     }
 }
 

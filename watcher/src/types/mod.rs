@@ -11,21 +11,17 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "snake_case", tag = "item_type")]
-pub enum WatcherItem {
-    Node(Node),
-    Edge(Edge),
-}
-
-impl From<Node> for WatcherItem {
-    fn from(node: Node) -> Self {
-        WatcherItem::Node(node)
-    }
-}
-
-impl From<Edge> for WatcherItem {
-    fn from(edge: Edge) -> Self {
-        WatcherItem::Edge(edge)
-    }
+pub enum Item {
+    Assertion(edge::Asserted),
+    Witness(edge::Witnessed),
+    LastSignal(edge::LastSignal),
+    Measurement(edge::Measurement),
+    Sent(edge::Sent),
+    Subscription(edge::Subscription),
+    Sink(node::Sink),
+    Source(node::Source),
+    State(node::State),
+    Signal(node::Signal),
 }
 
 #[cfg(test)]

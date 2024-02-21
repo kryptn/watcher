@@ -4,7 +4,7 @@ pub mod discord;
 pub mod rss;
 
 pub trait Source {
-    type Metadata: Serialize;
+    type Metadata: Serialize + DeserializeOwned;
     type Output: Serialize + DeserializeOwned;
 
     async fn fetch<T>(

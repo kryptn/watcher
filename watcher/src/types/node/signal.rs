@@ -3,7 +3,7 @@ use chrono::serde::ts_microseconds;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use serde_json::to_value;
 
-use crate::types::WatcherItem;
+use crate::types::Item;
 
 #[derive(Clone, Debug)]
 pub struct SignalId {
@@ -74,9 +74,9 @@ pub struct Signal {
     ttl: Option<u64>,
 }
 
-impl Into<WatcherItem> for Signal {
-    fn into(self) -> WatcherItem {
-        WatcherItem::Node(self.into())
+impl Into<Item> for Signal {
+    fn into(self) -> Item {
+        Item::Signal(self)
     }
 }
 

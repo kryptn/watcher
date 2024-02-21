@@ -1,6 +1,9 @@
-use serde::{Deserialize, Serialize};
+use serde::{de::DeserializeOwned, Deserialize, Serialize};
 
-use crate::types::{Source, State, StateId, WatcherItem};
+use crate::{
+    ext,
+    types::{Item, Source, State, StateId},
+};
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct Measurement {
@@ -20,15 +23,15 @@ impl From<(&Source, &State)> for Measurement {
 }
 
 impl Measurement {
-    pub fn to_watcher_item(self) -> WatcherItem {
+    pub fn to_watcher_item(self) -> Item {
         let edge = self.into();
-        WatcherItem::Edge(edge)
+        Item::Measurement(edge)
     }
 }
 
-impl Into<WatcherItem> for Measurement {
-    fn into(self) -> WatcherItem {
-        WatcherItem::Edge(self.into())
+impl Into<Item> for Measurement {
+    fn into(self) -> Item {
+        Item::Measurement(self.into())
     }
 }
 

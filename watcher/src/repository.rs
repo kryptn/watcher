@@ -2,14 +2,15 @@ use std::collections::HashMap;
 
 use aws_sdk_dynamodb::types::{self, AttributeValue};
 use itertools::Itertools;
-use serde_dynamo::{to_attribute_value, Item};
+use serde_dynamo::{to_attribute_value, Item as DynamoItem};
+
 // use serde_json::Value;
 
-use crate::types::{Edge, Node, Sink, Source, Subscription, WatcherItem};
+use crate::types::{Item, Sink, Source, Subscription};
 
 // use serde::value::Value;
 
-fn ensure_sk(item: Item) -> Item {
+fn ensure_sk(item: DynamoItem) -> DynamoItem {
     let mut item = item;
     if !item.contains_key("SK") {
         let pk = item.get("PK").unwrap().clone();
@@ -31,7 +32,7 @@ impl Repository {
     }
 }
 
-fn as_av_hashmap(item: Item) -> HashMap<String, AttributeValue> {
+fn as_av_hashmap(item: DynamoItem) -> HashMap<String, AttributeValue> {
     item.iter()
         .map(|(k, v)| (k.clone(), to_attribute_value(v.clone()).unwrap()))
         .collect()
@@ -69,10 +70,10 @@ impl Repository {
     pub async fn put_item<T>(&self, item: T) -> Result<(), Box<dyn std::error::Error>>
     where
         T: serde::Serialize,
-        T: Into<WatcherItem>,
+        T: Into<Item>,
     {
-        let watcher_item: WatcherItem = item.into();
-        let item: Item = serde_dynamo::to_item(watcher_item)?;
+        let watcher_item: Item = item.into();
+        let item: DynamoItem = serde_dynamo::to_item(watcher_item)?;
         let item = ensure_sk(item);
 
         self.client
@@ -90,12 +91,12 @@ impl Repository {
         items: impl Iterator<Item = T>,
     ) -> Result<(), Box<dyn std::error::Error>>
     where
-        T: Into<WatcherItem>,
+        T: Into<Item>,
     {
         let items = items
             .map(|i| i.into())
-            // convert to a WatcherItem
-            .map(WatcherItem::from)
+            // convert to a Item
+            .map(Item::from)
             // convert to a DynamoDB item
             .map(serde_dynamo::to_item)
             // convert Result to Option, filter out failures
@@ -133,7 +134,7 @@ impl Repository {
         fields: &[&str],
     ) -> Result<(), Box<dyn std::error::Error>>
     where
-        T: Into<WatcherItem>,
+        T: Into<Item>,
     {
         let _ = self
             .client
@@ -149,7 +150,7 @@ impl Repository {
         Ok(())
     }
 
-    pub async fn list_all_items(&self) -> Result<Vec<WatcherItem>, Box<dyn std::error::Error>> {
+    pub async fn list_all_items(&self) -> Result<Vec<Item>, Box<dyn std::error::Error>> {
         let response = self
             .client
             .scan()
@@ -159,7 +160,7 @@ impl Repository {
 
         let items = response.items.unwrap_or_default();
 
-        let items: Vec<WatcherItem> = items
+        let items: Vec<Item> = items
             .into_iter()
             .filter_map(|item| serde_dynamo::from_item(item).ok())
             .collect();

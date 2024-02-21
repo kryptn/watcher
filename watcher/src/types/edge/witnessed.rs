@@ -1,6 +1,9 @@
-use serde::{Deserialize, Serialize};
+use serde::{de::DeserializeOwned, Deserialize, Serialize};
 
-use crate::types::{Source, State, StateId, WatcherItem};
+use crate::{
+    ext,
+    types::{Item, Source, State, StateId},
+};
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct Witnessed {
@@ -20,15 +23,15 @@ impl From<(&Source, &State)> for Witnessed {
 }
 
 impl Witnessed {
-    pub fn to_watcher_item(self) -> WatcherItem {
+    pub fn to_watcher_item(self) -> Item {
         let edge = self.into();
-        WatcherItem::Edge(edge)
+        Item::Witness(edge)
     }
 }
 
-impl Into<WatcherItem> for Witnessed {
-    fn into(self) -> WatcherItem {
-        WatcherItem::Edge(self.into())
+impl Into<Item> for Witnessed {
+    fn into(self) -> Item {
+        Item::Witness(self.into())
     }
 }
 

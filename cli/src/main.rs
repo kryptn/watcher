@@ -10,7 +10,7 @@ use watcher::{
     meta_repo,
     repository::Repository,
     scheduling::{self, create_schedule},
-    types::{Event, Signal, Sink, SinkSignalCreated, Source, State, Subscription, WatcherItem},
+    types::{Event, Item, Signal, Sink, SinkSignalCreated, Source, State, Subscription},
 };
 
 use aws_sdk_dynamodb as dynamodb;
@@ -48,7 +48,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     match cli.command {
         cli::Commands::Get { id } => {
-            let item: WatcherItem = repo.get_item(&id, &id).await?;
+            let item: Item = repo.get_item(&id, &id).await?;
             println!("{:?}", item);
         }
         cli::Commands::Create(cmd) => {
@@ -57,19 +57,19 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 cli::CreateCommands::Source { name } => {
                     println!("create source -> {}", name);
                     let source = readfile::<Source>(cli.file.unwrap())?;
-                    let item: WatcherItem = source.into();
+                    let item: Item = source.into();
                     repo.put_item(item).await?;
                 }
                 cli::CreateCommands::Sink { name } => {
                     println!("create sink -> {}", name);
                     let sink = readfile::<Sink>(cli.file.unwrap())?;
-                    let item: WatcherItem = sink.into();
+                    let item: Item = sink.into();
                     repo.put_item(item).await?;
                 }
                 cli::CreateCommands::Subscription { source_id, sink_id } => {
                     println!("create subscription -> {}, {}", source_id, sink_id);
                     let subscription = readfile::<Subscription>(cli.file.unwrap())?;
-                    let item: WatcherItem = subscription.into();
+                    let item: Item = subscription.into();
                     repo.put_item(item).await?;
                 }
                 cli::CreateCommands::Table {} => {
@@ -79,7 +79,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 cli::CreateCommands::Signal {} => {
                     println!("create signal");
                     let signal = readfile::<Signal>(cli.file.unwrap())?;
-                    let item: WatcherItem = signal.into();
+                    let item: Item = signal.into();
                     repo.put_item(item).await?;
                 }
             }
