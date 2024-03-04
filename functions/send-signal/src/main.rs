@@ -33,6 +33,8 @@ async fn function_handler(event: LambdaEvent<SqsEvent>) -> Result<(), Error> {
                 .await
                 .unwrap();
 
+            let source: ext::Source = types::ext::get_source(&signal.source).unwrap();
+
             match sink.sink {
                 types::SinkType::Discord(d) => {
                     let resp = d.send(signal).await.unwrap();
