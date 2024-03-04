@@ -3,9 +3,13 @@ use serde::{Deserialize, Serialize};
 use crate::types::node::Signal;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
-#[serde(rename_all = "snake_case", rename = "discord")]
+#[serde(rename_all = "snake_case", rename = "discord", tag = "sink_type")]
 pub struct Config {
     pub webhook: String,
+}
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct WebhookPayload {
+    pub content: String,
 }
 
 impl Config {
@@ -24,9 +28,4 @@ impl Config {
 
         Ok(())
     }
-}
-
-#[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct WebhookPayload {
-    pub content: String,
 }

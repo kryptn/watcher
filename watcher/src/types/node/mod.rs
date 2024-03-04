@@ -1,9 +1,9 @@
+mod signal;
+mod sink;
 mod source;
 mod state;
-mod sink;
-mod signal;
 
+pub use signal::*;
+pub use sink::*;
 pub use source::*;
 pub use state::*;
-pub use sink::*;
-pub use signal::*;
