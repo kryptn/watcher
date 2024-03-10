@@ -2,8 +2,9 @@ use aws_lambda_events::event::sqs::SqsEvent;
 use lambda_runtime::{run, service_fn, Error, LambdaEvent};
 use tracing_subscriber::filter::{EnvFilter, LevelFilter};
 use watcher::{
+    handle,
     repository::Repository,
-    types::{self, Signal, SinkSignalCreated},
+    types::{self, Command},
 };
 
 /// This is the main body for the function.
@@ -18,28 +19,14 @@ async fn function_handler(event: LambdaEvent<SqsEvent>) -> Result<(), Error> {
 
     let repo = Repository::lambda_new(config.table_name.expect("TABLE_NAME must be set")).await;
 
+    let services = ();
+
     for record in event.payload.records {
         if let Some(body) = record.body {
-            let payload: SinkSignalCreated = serde_json::from_str(&body).unwrap();
-            tracing::info!(target: "", signal_id = payload.signal_id, sink_id = payload.sink_id);
+            let payload: Command = serde_json::from_str(&body).unwrap();
 
-            let signal: Signal = repo
-                .get_item(&payload.signal_id, &payload.signal_id)
-                .await
-                .unwrap();
-
-            let sink: types::Sink = repo
-                .get_item(&payload.sink_id, &payload.sink_id)
-                .await
-                .unwrap();
-
-            let source: ext::Source = types::ext::get_source(&signal.source).unwrap();
-
-            match sink.sink {
-                types::SinkType::Discord(d) => {
-                    let resp = d.send(signal).await.unwrap();
-                }
-            }
+            // this is broken
+            handle(services, vec![&payload]).await?;
         }
     }
 
