@@ -41,7 +41,7 @@ pub async fn create_schedule(
     client
         .create_schedule()
         .name(schedule_name)
-        .schedule_expression("rate(1 minute)")
+        .schedule_expression("rate(5 minutes)")
         .flexible_time_window(
             types::FlexibleTimeWindow::builder()
                 .mode(types::FlexibleTimeWindowMode::Off)
