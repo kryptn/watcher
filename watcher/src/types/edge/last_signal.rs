@@ -1,9 +1,6 @@
-use serde::{de::DeserializeOwned, Deserialize, Serialize};
+use serde::{Deserialize, Serialize};
 
-use crate::{
-    ext,
-    types::{Item, Signal, SignalId, Source},
-};
+use crate::types::{Item, Signal, SignalId, Source};
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct LastSignal {

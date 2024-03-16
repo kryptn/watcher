@@ -1,13 +1,12 @@
 use std::collections::HashMap;
 
-use async_trait::async_trait;
 use aws_sdk_dynamodb::types::{self, AttributeValue};
 use itertools::Itertools;
 use serde_dynamo::{to_attribute_value, Item as DynamoItem};
 
 // use serde_json::Value;
 
-use crate::types::{Item, Sink, Source, Subscription};
+use crate::types::{Item, Subscription};
 
 // use serde::value::Value;
 

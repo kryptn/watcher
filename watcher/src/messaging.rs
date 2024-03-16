@@ -1,4 +1,4 @@
-use aws_sdk_sqs::{client, operation::send_message_batch::SendMessageBatch, types, Client};
+use aws_sdk_sqs::{types, Client};
 use itertools::Itertools;
 
 pub struct SqsProvider {

@@ -1,5 +1,4 @@
-use crate::ext;
-use serde::{de::Error, Deserialize, Serialize};
+use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize)]
 #[serde(rename = "rss", tag = "source_type")]

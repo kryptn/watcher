@@ -1,9 +1,6 @@
-use serde::{de::DeserializeOwned, Deserialize, Serialize};
+use serde::{Deserialize, Serialize};
 
-use crate::{
-    ext,
-    types::{Item, Source, State, StateId},
-};
+use crate::types::{Item, Source, State, StateId};
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct Asserted {

@@ -1,5 +1,3 @@
-use std::io::Read;
-
 use aws_sdk_s3::primitives::{ByteStream, SdkBody};
 
 pub trait Storable {

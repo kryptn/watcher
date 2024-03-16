@@ -12,19 +12,28 @@ use application::Application;
 use types::Command;
 
 pub async fn handle(
-    app: Application,
+    _app: Application,
     commands: Vec<&Command>,
 ) -> Result<(), Box<dyn std::error::Error + Sync + Send>> {
     for command in commands {
         match command {
-            Command::ObserveSource { source_id } => todo!(),
-            Command::SendSignal { signal_id, sink_id } => todo!(),
-            Command::Subscribe { source_id, sink_id } => todo!(),
-            Command::Unsubscribe { source_id, sink_id } => todo!(),
-            Command::AddSource { name, config } => todo!(),
-            Command::DeleteSource { source_id } => todo!(),
-            Command::AddSink { name, config } => todo!(),
-            Command::DeleteSink { sink_id } => todo!(),
+            Command::ObserveSource { source_id: _ } => todo!(),
+            Command::SendSignal {
+                signal_id: _,
+                sink_id: _,
+            } => todo!(),
+            Command::Subscribe {
+                source_id: _,
+                sink_id: _,
+            } => todo!(),
+            Command::Unsubscribe {
+                source_id: _,
+                sink_id: _,
+            } => todo!(),
+            Command::AddSource { name: _, config: _ } => todo!(),
+            Command::DeleteSource { source_id: _ } => todo!(),
+            Command::AddSink { name: _, config: _ } => todo!(),
+            Command::DeleteSink { sink_id: _ } => todo!(),
         }
     }
     Ok(())

@@ -19,7 +19,7 @@ impl Config {
         };
 
         let client = reqwest::Client::new();
-        let response = client
+        let _response = client
             .post(&self.webhook)
             .json(&payload)
             .send()
