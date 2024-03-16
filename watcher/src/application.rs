@@ -12,21 +12,19 @@ pub struct Application {
 
 impl Application {
     pub async fn new() -> Self {
-        let watcher = Arc::new(
-            repository::Repository::lambda_new(
-                config::init().table_name.expect("TABLE_NAME must be set"),
-            )
-            .await,
-        );
+        let config = config::init();
+
+        let table_name = config.table_name.expect("TABLE_NAME must be set");
+        let bucket = config.bucket.expect("BUCKET must be set");
+
+        let watcher = Arc::new(repository::Repository::lambda_new(table_name.clone()).await);
 
         let meta = Arc::new(meta_repo::Repository::new(
-            config::init().table_name.expect("TABLE_NAME must be set"),
+            table_name.clone(),
             aws_sdk_dynamodb::Client::new(&aws_config::load_from_env().await),
         ));
 
-        let storage = Arc::new(
-            storage::Client::new(config::init().bucket.expect("BUCKET must be set")).await,
-        );
+        let storage = Arc::new(storage::Client::new(bucket).await);
 
         Self {
             watcher,
