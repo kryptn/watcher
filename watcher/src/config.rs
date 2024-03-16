@@ -10,6 +10,9 @@ pub struct Config {
 
     #[envconfig(from = "SQS_QUEUE_URL")]
     pub sqs_queue_url: Option<String>,
+
+    #[envconfig(from = "BUCKET")]
+    pub bucket: Option<String>,
 }
 
 pub fn init() -> Config {

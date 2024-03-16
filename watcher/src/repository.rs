@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 
+use async_trait::async_trait;
 use aws_sdk_dynamodb::types::{self, AttributeValue};
 use itertools::Itertools;
 use serde_dynamo::{to_attribute_value, Item as DynamoItem};

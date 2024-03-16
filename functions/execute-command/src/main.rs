@@ -17,16 +17,14 @@ async fn function_handler(event: LambdaEvent<SqsEvent>) -> Result<(), Error> {
 
     let config = watcher::config::init();
 
-    let repo = Repository::lambda_new(config.table_name.expect("TABLE_NAME must be set")).await;
-
-    let services = ();
+    let app = watcher::application::Application::new().await;
 
     for record in event.payload.records {
         if let Some(body) = record.body {
             let payload: Command = serde_json::from_str(&body).unwrap();
 
             // this is broken
-            handle(services, vec![&payload]).await?;
+            handle(app.clone(), vec![&payload]).await?;
         }
     }
 
