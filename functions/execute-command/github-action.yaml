@@ -1,0 +1,78 @@
+on:
+  push:
+    paths:
+      - functions/execute-command/**
+      - watcher/**
+  pull_request:
+    paths:
+      - functions/execute-command/**
+      - watcher/**
+
+name: ci -- execute-command
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    name: Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+        with:
+          prefix-key: "v0-rust"
+          key: ${{ github.workflow }}
+          workspaces: "functions/execute-command -> target"
+          cache-all-crates: "true"
+          save-if: ${{ github.ref == 'refs/heads/main' }}
+      - run: cargo check --manifest-path functions/execute-command/Cargo.toml
+
+  test:
+    name: Test Suite
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+        with:
+          prefix-key: "v0-rust"
+          key: ${{ github.workflow }}
+          workspaces: "functions/execute-command -> target"
+          cache-all-crates: "true"
+          save-if: ${{ github.ref == 'refs/heads/main' }}
+      - run: cargo test --manifest-path functions/execute-command/Cargo.toml
+
+  fmt:
+    name: Rustfmt
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - run: rustup component add rustfmt
+      - uses: Swatinem/rust-cache@v2
+        with:
+          prefix-key: "v0-rust"
+          key: ${{ github.workflow }}
+          workspaces: "functions/execute-command -> target"
+          cache-all-crates: "true"
+          save-if: ${{ github.ref == 'refs/heads/main' }}
+      - run: cargo fmt --manifest-path functions/execute-command/Cargo.toml
+
+  clippy:
+    name: Clippy
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - run: rustup component add clippy
+      - uses: Swatinem/rust-cache@v2
+        with:
+          prefix-key: "v0-rust"
+          key: ${{ github.workflow }}
+          workspaces: "functions/execute-command -> target"
+          cache-all-crates: "true"
+          save-if: ${{ github.ref == 'refs/heads/main' }}
+      - run: cargo clippy --manifest-path functions/execute-command/Cargo.toml -- -D warnings
+        continue-on-error: true
