@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use crate::{config, messaging, meta_repo, repository, storage};
+use crate::{config, messaging, meta_repo, repository, storage, types::Command};
 
 #[derive(Clone)]
 pub struct Application {
@@ -37,5 +37,34 @@ impl Application {
             storage,
             queue,
         }
+    }
+
+    pub async fn handle(
+        &self,
+        commands: Vec<&Command>,
+    ) -> Result<(), Box<dyn std::error::Error + Sync + Send>> {
+        for command in commands {
+            match command {
+                Command::ObserveSource { source_id: _ } => todo!(),
+                Command::SendSignal {
+                    signal_id: _,
+                    sink_id: _,
+                } => todo!(),
+                Command::Subscribe {
+                    source_id: _,
+                    sink_id: _,
+                } => todo!(),
+                Command::Unsubscribe {
+                    source_id: _,
+                    sink_id: _,
+                } => todo!(),
+                Command::AddSource { name: _, config: _ } => todo!(),
+                Command::DeleteSource { source_id: _ } => todo!(),
+                Command::AddSink { name: _, config: _ } => todo!(),
+                Command::DeleteSink { sink_id: _ } => todo!(),
+            }
+        }
+
+        Ok(())
     }
 }

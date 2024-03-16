@@ -24,7 +24,8 @@ async fn function_handler(event: LambdaEvent<SqsEvent>) -> Result<(), Error> {
             let payload: Command = serde_json::from_str(&body).unwrap();
 
             // this is broken
-            handle(app.clone(), vec![&payload]).await?;
+
+            app.handle(vec![&payload]).await?;
         }
     }
 
