@@ -8,7 +8,7 @@ use serde::{Deserialize, Serialize};
 use watcher::{
     messaging::SqsProvider,
     repository::Repository,
-    types::{Source, SourceSchedule},
+    types::{Command, Source},
 };
 
 /// This is a made-up example of what a response structure may look like.
@@ -28,16 +28,23 @@ struct Response {
 /// - https://github.com/aws-samples/serverless-rust-demo/
 #[tracing::instrument]
 async fn function_handler(
-    event: LambdaEvent<SourceSchedule>,
+    event: LambdaEvent<Command>,
 ) -> Result<Response, Box<dyn std::error::Error>> {
-    let order = event.payload;
+    let cmd = event.payload;
+
+    let source_id = match &cmd {
+        Command::ObserveSource { source_id } => source_id,
+        _ => {
+            return Err("Invalid command".into());
+        }
+    };
 
     let config = watcher::config::init();
     let repo = Repository::lambda_new(config.table_name.expect("TABLE_NAME must be set")).await;
     let sqs = SqsProvider::new(config.sqs_queue_url.expect("SQS_QUEUE_URL must be set")).await;
 
     let source: Source = repo
-        .get_item(&order.source_id, &order.source_id)
+        .get_item(&source_id, &source_id)
         .in_current_span()
         .await?;
     tracing::info!(target: "fetch_source", source_id=source.id, request_id=event.context.request_id, "fetching source");
@@ -45,7 +52,7 @@ async fn function_handler(
     // Prepare the response
     let resp = Response {
         req_id: event.context.request_id,
-        msg: format!("order {:?}.", order),
+        msg: format!("order {:?}.", cmd),
     };
     Ok(resp)
 }

@@ -4,8 +4,35 @@ use serde::{Deserialize, Serialize};
 #[non_exhaustive]
 #[serde(tag = "command", content = "data")]
 pub enum Command {
-    // meant to hit the remote source
-    ObserveSource { source_id: String },
+    ObserveSource {
+        source_id: String,
+    },
+    SendSignal {
+        signal_id: String,
+        sink_id: String,
+    },
 
-    SendSignal { signal_id: String, sink_id: String },
+    Subscribe {
+        source_id: String,
+        sink_id: String,
+    },
+    Unsubscribe {
+        source_id: String,
+        sink_id: String,
+    },
+
+    AddSource {
+        name: String,
+        config: serde_json::Value,
+    },
+    DeleteSource {
+        source_id: String,
+    },
+    AddSink {
+        name: String,
+        config: serde_json::Value,
+    },
+    DeleteSink {
+        sink_id: String,
+    },
 }
