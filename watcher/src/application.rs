@@ -1,13 +1,14 @@
 use std::sync::Arc;
 
-use crate::{config, meta_repo, repository, storage};
+use crate::{config, messaging, meta_repo, repository, storage};
 
 #[derive(Clone)]
 pub struct Application {
-    watcher: Arc<repository::Repository>,
-    meta: Arc<meta_repo::Repository>,
+    pub watcher: Arc<repository::Repository>,
+    pub meta: Arc<meta_repo::Repository>,
 
-    storage: Arc<storage::Client>,
+    pub storage: Arc<storage::Client>,
+    pub queue: Arc<messaging::SqsProvider>,
 }
 
 impl Application {
@@ -25,11 +26,16 @@ impl Application {
         ));
 
         let storage = Arc::new(storage::Client::new(bucket).await);
+        let queue = Arc::new(
+            messaging::SqsProvider::new(config.sqs_queue_url.expect("SQS_QUEUE_URL must be set"))
+                .await,
+        );
 
         Self {
             watcher,
             meta,
             storage,
+            queue,
         }
     }
 }

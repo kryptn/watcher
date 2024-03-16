@@ -5,12 +5,13 @@ use dynamodb::config::endpoint;
 use serde_dynamo::{to_item, Item};
 
 use watcher::{
+    application::Application,
     config::{self, Config},
     messaging::SqsProvider,
     meta_repo,
     repository::Repository,
     scheduling::{self, create_schedule},
-    types::{Event, Item, Signal, Sink, SinkSignalCreated, Source, State, Subscription},
+    types::{Command, Event, Signal, Sink, Source, State, Subscription},
 };
 
 use aws_sdk_dynamodb as dynamodb;
@@ -28,27 +29,11 @@ fn readfile<T: serde::de::DeserializeOwned>(
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let cli = cli::Cli::parse();
-    let config = config::init();
-
-    let table_name = config.table_name.unwrap();
-    let sqs_queue_url = config.sqs_queue_url.unwrap();
-
-    let aws_config = {
-        let mut c = aws_config::from_env();
-        if let Some(endpoint) = config.endpoint {
-            c = c.endpoint_url(endpoint);
-        }
-        c.load().await
-    };
-
-    let client = aws_sdk_dynamodb::Client::new(&aws_config);
-    let repo = Repository::new(table_name.to_string(), client.clone());
-    let metarepo = meta_repo::Repository::new(table_name.to_string(), client);
-    let queue = SqsProvider::new(sqs_queue_url).await;
+    let application = Application::new().await;
 
     match cli.command {
         cli::Commands::Get { id } => {
-            let item: Item = repo.get_item(&id, &id).await?;
+            let item: Item = application.watcher.get_item(&id, &id).await?;
             println!("{:?}", item);
         }
         cli::Commands::Create(cmd) => {
@@ -57,30 +42,26 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 cli::CreateCommands::Source { name } => {
                     println!("create source -> {}", name);
                     let source = readfile::<Source>(cli.file.unwrap())?;
-                    let item: Item = source.into();
-                    repo.put_item(item).await?;
+                    application.watcher.put_item(source).await?;
                 }
                 cli::CreateCommands::Sink { name } => {
                     println!("create sink -> {}", name);
                     let sink = readfile::<Sink>(cli.file.unwrap())?;
-                    let item: Item = sink.into();
-                    repo.put_item(item).await?;
+                    application.watcher.put_item(sink).await?;
                 }
                 cli::CreateCommands::Subscription { source_id, sink_id } => {
                     println!("create subscription -> {}, {}", source_id, sink_id);
                     let subscription = readfile::<Subscription>(cli.file.unwrap())?;
-                    let item: Item = subscription.into();
-                    repo.put_item(item).await?;
+                    application.watcher.put_item(subscription).await?;
                 }
                 cli::CreateCommands::Table {} => {
                     println!("create table");
-                    metarepo.create_table().await?;
+                    application.meta.create_table().await?;
                 }
                 cli::CreateCommands::Signal {} => {
                     println!("create signal");
                     let signal = readfile::<Signal>(cli.file.unwrap())?;
-                    let item: Item = signal.into();
-                    repo.put_item(item).await?;
+                    application.watcher.put_item(signal).await?;
                 }
             }
         }
@@ -100,7 +81,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 }
                 cli::DeleteCommands::Table {} => {
                     println!("delete table");
-                    metarepo.delete_table().await?;
+                    application.meta.delete_table().await?;
                 }
             }
         }
@@ -119,7 +100,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             };
             let client = scheduling::new().await;
             let schedule_name = format!("schedule-{}", &source_id.replace(":", "-"));
-            let input = watcher::types::SourceSchedule {
+
+            let input = Command::ObserveSource {
                 source_id: source_id.clone(),
             };
 
@@ -130,12 +112,14 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         cli::Commands::DeleteSchedule { source_id } => {
             let client = scheduling::new().await;
 
-            let endpoint: Source = repo.get_item(&source_id, &source_id).await?;
+            let endpoint: Source = application.watcher.get_item(&source_id, &source_id).await?;
 
             if let Some(schedule_name) = endpoint.schedule_name {
                 scheduling::delete_schedule(&client, &schedule_name).await?;
                 println!("deleted schedule {}", schedule_name);
-                repo.remove::<Source>(&source_id, &source_id, &["schedule_name"])
+                application
+                    .watcher
+                    .remove::<Source>(&source_id, &source_id, &["schedule_name"])
                     .await?;
             }
         }
@@ -143,7 +127,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
         cli::Commands::SendEvent {} => {
             let event = readfile::<Event>(cli.file.unwrap())?;
-            queue.send(event).await?;
+            application.queue.send(event).await?;
         }
     }
 
