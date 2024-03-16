@@ -1,7 +1,6 @@
 use aws_sdk_scheduler as scheduler;
 use aws_sdk_scheduler::types;
-
-use crate::types::SourceSchedule;
+use serde::Serialize;
 
 pub async fn new() -> scheduler::Client {
     let config = aws_config::load_from_env().await;
@@ -24,17 +23,20 @@ impl TargetConfig {
     }
 }
 
-pub async fn create_schedule(
+pub async fn create_schedule<T>(
     client: &scheduler::Client,
     schedule_name: &str,
     target_config: TargetConfig,
-    target_input: &SourceSchedule,
-) -> Result<(), Box<dyn std::error::Error>> {
+    payload: &T,
+) -> Result<(), Box<dyn std::error::Error>>
+where
+    T: Serialize,
+{
     let input = serde_json::json! {
         {
             "FunctionName": target_config.arn(),
             "InvocationType": "Event",
-            "Payload": serde_json::to_string(target_input)?,
+            "Payload": serde_json::to_string(payload)?,
         }
     };
 

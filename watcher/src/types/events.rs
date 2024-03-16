@@ -1,57 +1,12 @@
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct SourceSchedule {
-    pub source_id: String,
-}
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct StateCreated {
-    pub source_id: String,
-    pub state_id: String,
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct SourceSignalUpdated {
-    pub source_id: String,
-    pub signal_id: String,
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct SinkSignalCreated {
-    pub sink_id: String,
-    pub signal_id: String,
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(rename_all = "snake_case", tag = "event_type")]
+#[derive(Clone, Debug, Serialize, Deserialize)]
+#[non_exhaustive]
+#[serde(tag = "command", content = "data")]
 pub enum Event {
-    SourceSchedule(SourceSchedule),
-    StateCreated(StateCreated),
-    SourceSignalUpdated(SourceSignalUpdated),
-    SinkSignalCreated(SinkSignalCreated),
-}
+    SourceObserved { source_id: String, state_id: String },
+    ChangeMeasured { source_id: String, signal_id: String },
+    SignalSent { signal_id: String, sink_id: String },
 
-impl From<SourceSchedule> for Event {
-    fn from(event: SourceSchedule) -> Self {
-        Event::SourceSchedule(event)
-    }
-}
-
-impl From<StateCreated> for Event {
-    fn from(event: StateCreated) -> Self {
-        Event::StateCreated(event)
-    }
-}
-
-impl From<SourceSignalUpdated> for Event {
-    fn from(event: SourceSignalUpdated) -> Self {
-        Event::SourceSignalUpdated(event)
-    }
-}
-
-impl From<SinkSignalCreated> for Event {
-    fn from(event: SinkSignalCreated) -> Self {
-        Event::SinkSignalCreated(event)
-    }
 }
